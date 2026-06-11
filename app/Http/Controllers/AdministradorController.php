@@ -7,43 +7,45 @@ use Illuminate\Http\Request;
 
 class AdministradorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Administrador::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'id_administrador' => 'required|integer',
+            'cargo' => 'required|string|max:255',
+            'estado' => 'required|string|max:50',
+        ]);
+
+        $administrador = Administrador::create($validated);
+        return response()->json($administrador, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Administrador $administrador)
+    public function show($id)
     {
-        //
+        $administrador = Administrador::find($id);
+        if (!$administrador) return response()->json(['message' => 'Administrador no encontrado'], 404);
+        return response()->json($administrador, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Administrador $administrador)
+    public function update(Request $request, $id)
     {
-        //
+        $administrador = Administrador::find($id);
+        if (!$administrador) return response()->json(['message' => 'Administrador no encontrado'], 404);
+
+        $administrador->update($request->all());
+        return response()->json($administrador, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Administrador $administrador)
+    public function destroy($id)
     {
-        //
+        $administrador = Administrador::find($id);
+        if (!$administrador) return response()->json(['message' => 'Administrador no encontrado'], 404);
+
+        $administrador->delete();
+        return response()->json(['message' => 'Administrador eliminado'], 200);
     }
 }

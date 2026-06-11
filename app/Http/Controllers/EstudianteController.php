@@ -7,43 +7,48 @@ use Illuminate\Http\Request;
 
 class EstudianteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Estudiante::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'id_estudiante' => 'required|integer',
+            'matricula' => 'required|string|max:100',
+            'carrera' => 'required|string|max:255',
+            'semestre' => 'required|integer',
+            'fecha_ingreso' => 'nullable|date',
+            'estado' => 'required|string|max:50',
+        ]);
+
+        $estudiante = Estudiante::create($validated);
+        return response()->json($estudiante, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Estudiante $estudiante)
+    public function show($id)
     {
-        //
+        $estudiante = Estudiante::find($id);
+        if (!$estudiante) return response()->json(['message' => 'Estudiante no encontrado'], 404);
+        return response()->json($estudiante, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Estudiante $estudiante)
+    public function update(Request $request, $id)
     {
-        //
+        $estudiante = Estudiante::find($id);
+        if (!$estudiante) return response()->json(['message' => 'Estudiante no encontrado'], 404);
+
+        $estudiante->update($request->all());
+        return response()->json($estudiante, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Estudiante $estudiante)
+    public function destroy($id)
     {
-        //
+        $estudiante = Estudiante::find($id);
+        if (!$estudiante) return response()->json(['message' => 'Estudiante no encontrado'], 404);
+
+        $estudiante->delete();
+        return response()->json(['message' => 'Estudiante eliminado'], 200);
     }
 }

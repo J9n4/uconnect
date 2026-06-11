@@ -7,43 +7,46 @@ use Illuminate\Http\Request;
 
 class ProfesorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Profesor::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'id_profesor' => 'required|integer',
+            'departamento' => 'required|string|max:255',
+            'titulo' => 'nullable|string|max:255',
+            'estado' => 'required|string|max:50',
+        ]);
+
+        $profesor = Profesor::create($validated);
+        return response()->json($profesor, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Profesor $profesor)
+    public function show($id)
     {
-        //
+        $profesor = Profesor::find($id);
+        if (!$profesor) return response()->json(['message' => 'Profesor no encontrado'], 404);
+        return response()->json($profesor, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Profesor $profesor)
+    public function update(Request $request, $id)
     {
-        //
+        $profesor = Profesor::find($id);
+        if (!$profesor) return response()->json(['message' => 'Profesor no encontrado'], 404);
+
+        $profesor->update($request->all());
+        return response()->json($profesor, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Profesor $profesor)
+    public function destroy($id)
     {
-        //
+        $profesor = Profesor::find($id);
+        if (!$profesor) return response()->json(['message' => 'Profesor no encontrado'], 404);
+
+        $profesor->delete();
+        return response()->json(['message' => 'Profesor eliminado'], 200);
     }
 }

@@ -7,43 +7,48 @@ use Illuminate\Http\Request;
 
 class HorarioAtencionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(HorarioAtencion::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'dia_semana' => 'required|string|max:50',
+            'hora_inicio' => 'required',
+            'hora_fin' => 'required',
+            'modalidad' => 'required|string|max:100',
+            'ubicacion' => 'nullable|string|max:255',
+            'estado' => 'required|string|max:50',
+        ]);
+
+        $horario = HorarioAtencion::create($validated);
+        return response()->json($horario, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(HorarioAtencion $horarioAtencion)
+    public function show($id)
     {
-        //
+        $horario = HorarioAtencion::find($id);
+        if (!$horario) return response()->json(['message' => 'Horario no encontrado'], 404);
+        return response()->json($horario, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, HorarioAtencion $horarioAtencion)
+    public function update(Request $request, $id)
     {
-        //
+        $horario = HorarioAtencion::find($id);
+        if (!$horario) return response()->json(['message' => 'Horario no encontrado'], 404);
+
+        $horario->update($request->all());
+        return response()->json($horario, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(HorarioAtencion $horarioAtencion)
+    public function destroy($id)
     {
-        //
+        $horario = HorarioAtencion::find($id);
+        if (!$horario) return response()->json(['message' => 'Horario no encontrado'], 404);
+
+        $horario->delete();
+        return response()->json(['message' => 'Horario eliminado'], 200);
     }
 }

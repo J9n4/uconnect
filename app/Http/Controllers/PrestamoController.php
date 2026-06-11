@@ -7,43 +7,48 @@ use Illuminate\Http\Request;
 
 class PrestamoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Prestamo::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'fecha_solicitud' => 'required|date',
+            'fecha_prestamo' => 'nullable|date',
+            'fecha_devolucion_es' => 'nullable|date',
+            'fecha_devolucion_real' => 'nullable|date',
+            'estado' => 'required|string|max:50',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $prestamo = Prestamo::create($validated);
+        return response()->json($prestamo, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Prestamo $prestamo)
+    public function show($id)
     {
-        //
+        $prestamo = Prestamo::find($id);
+        if (!$prestamo) return response()->json(['message' => 'Préstamo no encontrado'], 404);
+        return response()->json($prestamo, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Prestamo $prestamo)
+    public function update(Request $request, $id)
     {
-        //
+        $prestamo = Prestamo::find($id);
+        if (!$prestamo) return response()->json(['message' => 'Préstamo no encontrado'], 404);
+
+        $prestamo->update($request->all());
+        return response()->json($prestamo, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Prestamo $prestamo)
+    public function destroy($id)
     {
-        //
+        $prestamo = Prestamo::find($id);
+        if (!$prestamo) return response()->json(['message' => 'Préstamo no encontrado'], 404);
+
+        $prestamo->delete();
+        return response()->json(['message' => 'Préstamo eliminado'], 200);
     }
 }

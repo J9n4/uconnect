@@ -7,43 +7,45 @@ use Illuminate\Http\Request;
 
 class AprobacionPrestamoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(AprobacionPrestamo::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'accion' => 'required|string|max:255',
+            'comentarios' => 'nullable|string',
+            'fecha_accion' => 'required|date',
+        ]);
+
+        $aprobacion = AprobacionPrestamo::create($validated);
+        return response()->json($aprobacion, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(AprobacionPrestamo $aprobacionPrestamo)
+    public function show($id)
     {
-        //
+        $aprobacion = AprobacionPrestamo::find($id);
+        if (!$aprobacion) return response()->json(['message' => 'Aprobación no encontrada'], 404);
+        return response()->json($aprobacion, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, AprobacionPrestamo $aprobacionPrestamo)
+    public function update(Request $request, $id)
     {
-        //
+        $aprobacion = AprobacionPrestamo::find($id);
+        if (!$aprobacion) return response()->json(['message' => 'Aprobación no encontrada'], 404);
+
+        $aprobacion->update($request->all());
+        return response()->json($aprobacion, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(AprobacionPrestamo $aprobacionPrestamo)
+    public function destroy($id)
     {
-        //
+        $aprobacion = AprobacionPrestamo::find($id);
+        if (!$aprobacion) return response()->json(['message' => 'Aprobación no encontrada'], 404);
+
+        $aprobacion->delete();
+        return response()->json(['message' => 'Aprobación eliminada'], 200);
     }
 }

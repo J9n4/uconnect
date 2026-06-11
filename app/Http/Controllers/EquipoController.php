@@ -7,43 +7,47 @@ use Illuminate\Http\Request;
 
 class EquipoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Equipo::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'estado' => 'required|string|max:50',
+            'ubicacion' => 'nullable|string|max:255',
+            'fecha_alta' => 'nullable|date',
+        ]);
+
+        $equipo = Equipo::create($validated);
+        return response()->json($equipo, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Equipo $equipo)
+    public function show($id)
     {
-        //
+        $equipo = Equipo::find($id);
+        if (!$equipo) return response()->json(['message' => 'Equipo no encontrado'], 404);
+        return response()->json($equipo, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Equipo $equipo)
+    public function update(Request $request, $id)
     {
-        //
+        $equipo = Equipo::find($id);
+        if (!$equipo) return response()->json(['message' => 'Equipo no encontrado'], 404);
+
+        $equipo->update($request->all());
+        return response()->json($equipo, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Equipo $equipo)
+    public function destroy($id)
     {
-        //
+        $equipo = Equipo::find($id);
+        if (!$equipo) return response()->json(['message' => 'Equipo no encontrado'], 404);
+
+        $equipo->delete();
+        return response()->json(['message' => 'Equipo eliminado'], 200);
     }
 }

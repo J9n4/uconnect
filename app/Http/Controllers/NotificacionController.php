@@ -7,43 +7,47 @@ use Illuminate\Http\Request;
 
 class NotificacionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Notificacion::all(), 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'tipo' => 'required|string|max:255',
+            'titulo' => 'required|string|max:255',
+            'mensaje' => 'required|string',
+            'fecha' => 'required|date',
+            'leida' => 'required|string|max:10',
+        ]);
+
+        $notificacion = Notificacion::create($validated);
+        return response()->json($notificacion, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Notificacion $notificacion)
+    public function show($id)
     {
-        //
+        $notificacion = Notificacion::find($id);
+        if (!$notificacion) return response()->json(['message' => 'Notificación no encontrada'], 404);
+        return response()->json($notificacion, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Notificacion $notificacion)
+    public function update(Request $request, $id)
     {
-        //
+        $notificacion = Notificacion::find($id);
+        if (!$notificacion) return response()->json(['message' => 'Notificación no encontrada'], 404);
+
+        $notificacion->update($request->all());
+        return response()->json($notificacion, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Notificacion $notificacion)
+    public function destroy($id)
     {
-        //
+        $notificacion = Notificacion::find($id);
+        if (!$notificacion) return response()->json(['message' => 'Notificación no encontrada'], 404);
+
+        $notificacion->delete();
+        return response()->json(['message' => 'Notificación eliminada'], 200);
     }
 }
