@@ -1,0 +1,98 @@
+<app-navbar></app-navbar>
+
+<div class="page">
+  <app-sidebar></app-sidebar>
+
+  <main class="content" aria-label="Dashboard de administrador">
+    <header class="page-header">
+      <div>
+        <h1>Dashboard Administrador</h1>
+        <p class="subtitle">Gestión de equipos, préstamos y novedades operativas.</p>
+      </div>
+<div class="actions" aria-label="Acciones">
+        <button type="button" class="btn btn-primary">Acciones</button>
+        <button type="button" class="btn btn-ghost">Sincronizar</button>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="Resumen">
+      <article class="stat-card">
+<div class="stat-label">Equipos</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Cargando desde la base de datos</div>
+      </article>
+      <article class="stat-card">
+<div class="stat-label">Préstamos activos</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Actualizado al consultar</div>
+      </article>
+      <article class="stat-card">
+<div class="stat-label">Incidencias</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Pendientes por resolver</div>
+      </article>
+      <article class="stat-card">
+<div class="stat-label">Capacitación</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Programación vigente</div>
+      </article>
+    </section>
+
+    <section class="panel" aria-label="Listado de préstamos">
+      <div class="panel-header">
+        <div>
+          <h2>Préstamos recientes</h2>
+          <p class="panel-subtitle">Monitorea solicitudes y estado operativo.</p>
+        </div>
+        <div class="panel-tools">
+          <label class="field">
+            <span class="field-label">Buscar</span>
+            <input class="input" type="text" placeholder="ID, equipo o usuario" />
+          </label>
+          <button type="button" class="btn btn-ghost">Filtrar</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" role="region" aria-label="Tabla de préstamos">
+<table class="table">
+          <thead>
+            <tr>
+              <th>Equipo</th>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th class="th-actions">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="5">Sin datos para mostrar. Conectando a la base de datos…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Accesos rápidos">
+<div class="quick-grid">
+        <a class="quick" href="#">
+          <div class="quick-title">Gestión</div>
+          <div class="quick-desc">Enlazado a datos reales.</div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-title">Inventario</div>
+          <div class="quick-desc">Actualización automática.</div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-title">Aprobaciones</div>
+          <div class="quick-desc">Flujo de trabajo con backend.</div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-title">Reportes</div>
+          <div class="quick-desc">Generación desde la base.</div>
+        </a>
+      </div>
+    </section>
+  </main>
+</div>
+

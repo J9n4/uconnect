@@ -1,0 +1,98 @@
+<app-navbar></app-navbar>
+
+<div class="page">
+  <app-sidebar></app-sidebar>
+
+  <main class="content" aria-label="Dashboard profesor">
+    <header class="page-header">
+      <div>
+        <h1>Dashboard Profesor</h1>
+        <p class="subtitle">Gestión de mensajes, atención y coordinación académica.</p>
+      </div>
+<div class="actions" aria-label="Acciones">
+        <button type="button" class="btn btn-primary">Acciones</button>
+        <button type="button" class="btn btn-ghost">Sincronizar agenda</button>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="Resumen">
+      <article class="stat-card">
+<div class="stat-label">Mensajes sin responder</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Se calcula al consultar</div>
+      </article>
+      <article class="stat-card">
+<div class="stat-label">Turnos programados</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Próximos disponibles</div>
+      </article>
+      <article class="stat-card">
+<div class="stat-label">Recursos asignados</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Materiales en sistema</div>
+      </article>
+      <article class="stat-card">
+<div class="stat-label">Seguimientos</div>
+        <div class="stat-value">—</div>
+        <div class="stat-hint">Pendientes con estado real</div>
+      </article>
+    </section>
+
+    <section class="panel" aria-label="Mensajes">
+      <div class="panel-header">
+        <div>
+          <h2>Mensajes recientes</h2>
+          <p class="panel-subtitle">Responder, derivar o agendar.</p>
+        </div>
+        <div class="panel-tools">
+          <label class="field">
+            <span class="field-label">Buscar</span>
+            <input class="input" type="text" placeholder="Alumno, tema o estado" />
+          </label>
+          <button type="button" class="btn btn-ghost">Filtrar</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" role="region" aria-label="Tabla de mensajes">
+<table class="table">
+          <thead>
+            <tr>
+              <th>Remitente</th>
+              <th>Tema</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th class="th-actions">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="5">Sin datos para mostrar. Cargando desde la base de datos…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Accesos rápidos">
+<div class="quick-grid">
+        <a class="quick" href="#">
+          <div class="quick-title">Atención</div>
+          <div class="quick-desc">Confirmación respaldada por backend.</div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-title">Turnos</div>
+          <div class="quick-desc">Agenda sincronizada con sistema.</div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-title">Reportes</div>
+          <div class="quick-desc">Generación desde datos reales.</div>
+        </a>
+        <a class="quick" href="#">
+          <div class="quick-title">Soporte</div>
+          <div class="quick-desc">Gestión centralizada.</div>
+        </a>
+      </div>
+    </section>
+  </main>
+</div>
+
