@@ -1,0 +1,105 @@
+<div class="requests-container">
+  
+  <header class="page-header">
+    <div>
+      <h1>Mis Solicitudes y Citas</h1>
+      <p>Monitorea tus pedidos de laboratorios y gestiona tus asesorías docentes.</p>
+    </div>
+  </header>
+
+  <section class="management-section">
+    <div class="section-title">
+      <lucide-icon [img]="LabIcon" class="icon-md"></lucide-icon>
+      <h2>Estatus de Equipos de Laboratorio</h2>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>ID Pedido</th>
+            <th>Equipo</th>
+            <th>Laboratorio / Origen</th>
+            <th>Fecha Solicitud</th>
+            <th>Estado</th>
+            <th class="actions-col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (req of equipmentRequests; track req.id) {
+            <tr>
+              <td class="id-cell">{{ req.id }}</td>
+              <td class="bold-cell">{{ req.name }}</td>
+              <td>{{ req.lab }}</td>
+              <td class="text-muted">{{ req.date }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="req.statusClass">{{ req.status }}</span>
+              </td>
+              <td>
+                @if (req.status === 'Pendiente') {
+                  <button class="btn-action text-danger" (click)="cancelEquipment(req.id, req.name)" title="Cancelar Solicitud">
+                    <lucide-icon [img]="CancelIcon"></lucide-icon> Cancelar
+                  </button>
+                } @else {
+                  <span class="text-disabled">Sin acciones</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-table">No tienes pedidos de equipos registrados.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="management-section">
+    <div class="section-title">
+      <lucide-icon [img]="TutorIcon" class="icon-md"></lucide-icon>
+      <h2>Mis Citas y Consultas</h2>
+    </div>
+
+    <div class="appointments-grid">
+      @for (apt of tutorAppointments; track apt.id) {
+        <div class="appointment-card">
+          <div class="card-header">
+            <span class="badge-modality" [ngClass]="apt.modality.toLowerCase()">{{ apt.modality }}</span>
+            <span class="apt-id">{{ apt.id }}</span>
+          </div>
+          
+          <div class="card-body">
+            <h3>{{ apt.teacher }}</h3>
+            <p class="subject">{{ apt.subject }}</p>
+            
+            <div class="meta-info">
+              <div class="info-item">
+                <lucide-icon [img]="ClockIcon" class="icon-xs"></lucide-icon>
+                <span>{{ apt.dateTime }}</span>
+              </div>
+              <div class="info-item">
+                <lucide-icon [img]="CalendarIcon" class="icon-xs"></lucide-icon>
+                <span>Lugar: <strong>{{ apt.room }}</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn-secondary" (click)="rescheduleTutor(apt.id, apt.teacher)">
+              Reagendar
+            </button>
+            <button class="btn-danger-outline" (click)="cancelTutor(apt.id, apt.teacher)">
+              Cancelar Cita
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state-card">
+          <p>No tienes citas programadas con profesores actualmente.</p>
+        </div>
+      }
+    </div>
+  </section>
+
+</div>

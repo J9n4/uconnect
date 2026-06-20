@@ -1,1 +1,57 @@
-/* You can add global styles to this file, and also import other style files */
+/* --- UCONNECT DESIGN SYSTEM GLOBALS --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap');
+
+:root {
+  /* Paleta de Colores (Navy Universitario) */
+  --color-primary: #0f172a;       
+  --color-primary-hover: #1e293b; 
+  --color-accent: #2563eb;        
+  
+  /* Fondos y Superficies */
+  --color-background: #f8fafc;    
+  --color-surface: #ffffff;       
+  
+  /* Textos */
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  
+  /* Estados */
+  --status-success: #16a34a;
+  --status-success-bg: #dcfce7;
+  --status-warning: #ca8a04;
+  --status-warning-bg: #fef08a;
+  --status-error: #dc2626;
+  
+  /* Bordes y Sombras Profesionales */
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  /* Bordes redondeados */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* Reset Profesional */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-background);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Sora', sans-serif;
+  color: var(--color-primary);
+}

@@ -1,0 +1,114 @@
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--color-background);
+  background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.auth-card {
+  background: var(--color-surface);
+  width: 100%;
+  max-width: 420px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2.5rem 2rem;
+  border: 1px solid var(--border-color);
+  position: relative;
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+
+    &:hover { color: var(--color-accent); }
+    .icon-sm { width: 16px; height: 16px; }
+  }
+
+  .brand-section {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s;
+
+      &:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+      &.invalid { border-color: var(--status-error); }
+    }
+
+    .error-text {
+      display: block;
+      color: var(--status-error);
+      font-size: 0.75rem;
+      margin-top: 0.35rem;
+    }
+  }
+
+  .btn-block {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--color-accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) { background: #1d4ed8; }
+    &:disabled { opacity: 0.7; cursor: not-allowed; }
+  }
+
+  /* Estado de Éxito */
+  .success-state {
+    text-align: center;
+    padding: 1rem 0;
+
+    .icon-box {
+      width: 64px;
+      height: 64px;
+      background: var(--status-success-bg);
+      color: var(--status-success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      
+      lucide-icon { width: 32px; height: 32px; }
+    }
+
+    h2 { font-size: 1.5rem; margin-bottom: 0.75rem; color: var(--status-success); }
+    p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+  }
+}

@@ -1,0 +1,64 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    
+    <div class="brand-section">
+      <div class="logo-box">U</div>
+      <h2>Uconnect</h2>
+      <p>Ingresa tus credenciales institucionales</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-section">
+      
+      <div class="form-group">
+        <label for="email">Correo Institucional</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          placeholder="ejemplo@alumno.unach.cl"
+          [class.invalid]="f.email.invalid && f.email.touched"
+        >
+        <span class="error-text" *ngIf="f.email.invalid && f.email.touched">
+          Ingresa un correo institucional válido.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          placeholder="••••••••"
+          [class.invalid]="f.password.invalid && f.password.touched"
+        >
+        <span class="error-text" *ngIf="f.password.invalid && f.password.touched">
+          La contraseña debe tener al menos 6 caracteres.
+        </span>
+      </div>
+
+      <div class="server-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn-primary btn-block btn-animated" [disabled]="loginForm.invalid || isLoading">
+        
+        <ng-container *ngIf="!isLoading">
+          <span>Iniciar Sesión</span>
+          <lucide-icon [img]="LogInIcon" class="btn-icon"></lucide-icon>
+        </ng-container>
+
+        <ng-container *ngIf="isLoading">
+          <lucide-icon [img]="LoaderIcon" class="btn-icon spin"></lucide-icon>
+          <span>Verificando credenciales...</span>
+        </ng-container>
+
+      </button>
+
+      <div class="auth-links">
+        <a routerLink="/recovery">¿Olvidaste tu contraseña?</a>
+      </div>
+
+    </form>
+  </div>
+</div>
