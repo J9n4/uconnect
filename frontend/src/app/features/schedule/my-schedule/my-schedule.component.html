@@ -1,0 +1,58 @@
+<div class="schedule-container">
+  
+  <header class="page-header">
+    <div>
+      <h1>Mi Horario</h1>
+      <p>Semana del 14 al 18 de Octubre</p>
+    </div>
+    <button class="btn-export">
+      <lucide-icon [img]="CalendarIcon" class="icon-sm"></lucide-icon>
+      Sincronizar Calendario
+    </button>
+  </header>
+
+  <div class="schedule-grid-wrapper">
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th class="time-col">Hora</th>
+          <th *ngFor="let day of weekDays">{{ day }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let time of timeSlots">
+          <td class="time-cell">{{ time }}</td>
+          
+          <ng-container *ngFor="let day of weekDays">
+            
+            <td 
+              *ngIf="getClassForSlot(day, time) as classObj; else emptySlot" 
+              [attr.rowspan]="classObj.duration"
+              class="class-cell-container">
+              
+              <div class="class-card" [ngClass]="classObj.type">
+                <h4>{{ classObj.name }}</h4>
+                <div class="class-details">
+                  <div class="detail-row">
+                    <lucide-icon [img]="PinIcon"></lucide-icon>
+                    <span>{{ classObj.room }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <lucide-icon [img]="ClockIcon"></lucide-icon>
+                    <span>{{ classObj.duration }} hrs</span>
+                  </div>
+                </div>
+              </div>
+              
+            </td>
+
+            <ng-template #emptySlot>
+              <td *ngIf="!isSlotOccupied(day, time)" class="empty-cell"></td>
+            </ng-template>
+
+          </ng-container>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

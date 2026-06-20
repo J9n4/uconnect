@@ -1,0 +1,12 @@
+<div class="toast-wrapper">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast-item" [ngClass]="toast.type">
+      <div class="toast-icon">
+        @if (toast.type === 'success') { <lucide-icon [img]="SuccessIcon"></lucide-icon> }
+        @if (toast.type === 'error') { <lucide-icon [img]="ErrorIcon"></lucide-icon> }
+        @if (toast.type === 'info') { <lucide-icon [img]="InfoIcon"></lucide-icon> }
+      </div>
+      <p class="toast-message">{{ toast.text }}</p>
+    </div>
+  }
+</div>

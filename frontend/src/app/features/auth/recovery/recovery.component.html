@@ -1,0 +1,51 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    
+    <a routerLink="/login" class="back-link">
+      <lucide-icon [img]="ArrowLeftIcon" class="icon-sm"></lucide-icon>
+      Volver al inicio
+    </a>
+
+    <ng-container *ngIf="!isSuccess">
+      <div class="brand-section">
+        <h2>Recuperar Contraseña</h2>
+        <p>Ingresa tu correo institucional y te enviaremos las instrucciones.</p>
+      </div>
+
+      <form [formGroup]="recoveryForm" (ngSubmit)="onSubmit()" class="form-section">
+        <div class="form-group">
+          <label for="email">Correo Institucional</label>
+          <input 
+            id="email" 
+            type="email" 
+            formControlName="email" 
+            placeholder="ejemplo@unach.cl"
+            [class.invalid]="f.email.invalid && f.email.touched"
+          >
+          <span class="error-text" *ngIf="f.email.invalid && f.email.touched">
+            Ingresa un correo válido.
+          </span>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Enviar Enlace</span>
+          <span *ngIf="isLoading">Enviando...</span>
+        </button>
+      </form>
+    </ng-container>
+
+    <ng-container *ngIf="isSuccess">
+      <div class="success-state">
+        <div class="icon-box">
+          <lucide-icon [img]="MailCheckIcon"></lucide-icon>
+        </div>
+        <h2>¡Correo Enviado!</h2>
+        <p>
+          Si el correo <strong>{{ f.email.value }}</strong> existe en nuestros registros, 
+          recibirás un enlace para restablecer tu contraseña.
+        </p>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

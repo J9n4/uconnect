@@ -1,0 +1,77 @@
+<div class="messages-layout">
+  
+  <!-- Columna Izquierda: Lista de Chats -->
+  <aside class="chat-sidebar">
+    <div class="sidebar-header">
+      <h2>Mensajes</h2>
+      <div class="search-bar">
+        <lucide-icon [img]="SearchIcon" class="icon-sm"></lucide-icon>
+        <input type="text" placeholder="Buscar contacto...">
+      </div>
+    </div>
+
+    <div class="chat-list">
+      <div 
+        class="chat-item" 
+        *ngFor="let chat of chats" 
+        [class.active]="chat.active"
+        (click)="selectChat(chat.id)">
+        
+        <div class="avatar">
+          <lucide-icon [img]="UserIcon"></lucide-icon>
+        </div>
+        
+        <div class="chat-info">
+          <div class="chat-header">
+            <h4>{{ chat.name }}</h4>
+            <span class="badge" *ngIf="chat.unread > 0">{{ chat.unread }}</span>
+          </div>
+          <p class="role-text">{{ chat.role }}</p>
+          <p class="last-message">{{ chat.lastMessage }}</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Columna Derecha: Hilo del Chat -->
+  <main class="chat-window">
+    
+    <!-- Cabecera del Chat Activo -->
+    <header class="chat-header-bar">
+      <div class="avatar">
+        <lucide-icon [img]="UserIcon"></lucide-icon>
+      </div>
+      <div>
+        <h3>{{ activeChat.name }}</h3>
+        <span class="status">En línea</span>
+      </div>
+    </header>
+
+    <!-- Área de Burbujas de Mensaje -->
+    <div class="chat-messages">
+      <div 
+        class="message-bubble" 
+        *ngFor="let msg of activeChat.messages"
+        [ngClass]="msg.sender === 'me' ? 'sent' : 'received'">
+        <div class="bubble-content">
+          <p>{{ msg.text }}</p>
+          <span class="time">{{ msg.time }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input para Enviar -->
+    <div class="chat-input-area">
+      <input 
+        type="text" 
+        placeholder="Escribe un mensaje..." 
+        [(ngModel)]="newMessage" 
+        (keyup.enter)="sendMessage()">
+      <button class="btn-send" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        <lucide-icon [img]="SendIcon"></lucide-icon>
+      </button>
+    </div>
+
+  </main>
+
+</div>

@@ -1,0 +1,183 @@
+.login-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--color-background);
+  /* Un detalle sutil de fondo para que no sea totalmente plano */
+  background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.login-card {
+  background: var(--color-surface);
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2.5rem 2rem;
+  border: 1px solid var(--border-color);
+
+  .brand-section {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      background: var(--color-accent);
+      color: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'Sora', sans-serif;
+      margin: 0 auto 1rem auto;
+    }
+
+    h2 {
+      color: var(--text-main);
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      outline: none;
+
+      &:focus {
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      &.invalid {
+        border-color: var(--status-error);
+      }
+    }
+
+    .error-text {
+      display: block;
+      color: var(--status-error);
+      font-size: 0.75rem;
+      margin-top: 0.35rem;
+    }
+  }
+
+  .server-error {
+    background: #fef2f2;
+    color: var(--status-error);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    border: 1px solid #f87171;
+  }
+
+  .btn-block {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+
+    a {
+      color: var(--color-accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+/* --- MEJORAS DEL BOTÓN DE LOGIN --- */
+.btn-primary.btn-animated {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  /* Degradado elegante tipo Apple/Premium */
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1e293b 100%);
+  color: white;
+  border: none;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  
+  /* Sombras y transiciones suaves */
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .btn-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Efecto al pasar el mouse */
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+    background: linear-gradient(135deg, #1e293b 0%, var(--color-primary) 100%);
+  }
+
+  /* Efecto al hacer clic */
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+  }
+
+  /* Estado deshabilitado (cuando falta un dato o está cargando) */
+  &:disabled {
+    background: #cbd5e1;
+    color: #64748b;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* Animación de rotación infinita para el Loader */
+.spin {
+  animation: spin-animation 1s linear infinite;
+}
+
+@keyframes spin-animation {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

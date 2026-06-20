@@ -1,0 +1,62 @@
+<div class="app-layout">
+  
+  <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="logo-area" *ngIf="!isSidebarCollapsed">
+        <div class="logo-icon">U</div>
+        <h2>Uconnect</h2>
+      </div>
+      <button class="btn-toggle" (click)="toggleSidebar()">
+        <lucide-icon [img]="MenuIcon"></lucide-icon>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a [routerLink]="dashboardRoute" routerLinkActive="active" class="nav-item">
+        <lucide-icon [img]="DashboardIcon"></lucide-icon>
+        <span *ngIf="!isSidebarCollapsed">Inicio</span>
+      </a>
+
+      <a routerLink="/messages" routerLinkActive="active" class="nav-item">
+        <lucide-icon [img]="MessageIcon"></lucide-icon>
+        <span *ngIf="!isSidebarCollapsed">Mensajes</span>
+      </a>
+
+      <a routerLink="/reservations" routerLinkActive="active" class="nav-item">
+        <lucide-icon [img]="CalendarIcon"></lucide-icon>
+        <span *ngIf="!isSidebarCollapsed">Reservas</span>
+      </a>
+
+      <a routerLink="/my-requests" routerLinkActive="active" class="nav-item">
+        <lucide-icon [img]="UserIcon"></lucide-icon>
+        <span *ngIf="!isSidebarCollapsed">Mis Solicitudes</span>
+      </a>
+      
+      <a routerLink="/schedule" routerLinkActive="active" class="nav-item">
+        <lucide-icon [img]="ScheduleIcon"></lucide-icon>
+        <span *ngIf="!isSidebarCollapsed">Mi Horario</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile" *ngIf="!isSidebarCollapsed">
+        <div class="avatar"><lucide-icon [img]="UserIcon"></lucide-icon></div>
+        <div class="info">
+          <p class="role">{{ userRole }}</p>
+        </div>
+      </div>
+      <button class="btn-logout" (click)="logout()" [title]="isSidebarCollapsed ? 'Cerrar Sesión' : ''">
+        <lucide-icon [img]="LogoutIcon"></lucide-icon>
+        <span *ngIf="!isSidebarCollapsed">Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <app-toast-container></app-toast-container>
+</div>

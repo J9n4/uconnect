@@ -1,0 +1,76 @@
+<div class="reservations-container">
+  
+  <header class="page-header">
+    <div>
+      <h1>Centro de Reservas</h1>
+      <p>Gestiona tus préstamos de equipos y agenda tutorías con docentes.</p>
+    </div>
+  </header>
+
+  <div class="tabs-container">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'labs'" 
+      (click)="setTab('labs')">
+      <lucide-icon [img]="MonitorIcon" class="icon-sm"></lucide-icon>
+      Equipos de Laboratorio
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'tutors'" 
+      (click)="setTab('tutors')">
+      <lucide-icon [img]="UsersIcon" class="icon-sm"></lucide-icon>
+      Horarios Docentes
+    </button>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab === 'labs'">
+    <div class="grid-cards">
+      <div class="card" *ngFor="let item of labEquipments">
+        <div class="card-emoji">{{ item.image }}</div>
+        <div class="card-info">
+          <h3>{{ item.name }}</h3>
+          <p class="subtitle">{{ item.lab }}</p>
+          <div class="availability">
+            <span class="status-dot" [class.out-of-stock]="item.available === 0"></span>
+            <span>{{ item.available }} de {{ item.total }} disponibles</span>
+          </div>
+        </div>
+        <button 
+          class="btn-primary" 
+          [disabled]="item.available === 0"
+          (click)="requestReservation(item.name)">
+          {{ item.available > 0 ? 'Solicitar' : 'Agotado' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab === 'tutors'">
+    <div class="grid-cards">
+      <div class="card" *ngFor="let teacher of teachers">
+        <div class="card-avatar">
+          <lucide-icon [img]="UsersIcon"></lucide-icon>
+        </div>
+        <div class="card-info">
+          <h3>{{ teacher.name }}</h3>
+          <p class="subtitle">{{ teacher.subject }}</p>
+          
+          <div class="slot-info">
+            <div class="info-row">
+              <lucide-icon [img]="ClockIcon" class="icon-xs"></lucide-icon>
+              <span>{{ teacher.nextSlot }}</span>
+            </div>
+            <div class="info-row">
+              <span class="badge" [ngClass]="teacher.modality.toLowerCase()">{{ teacher.modality }}</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary outline" (click)="requestReservation('tutoría con ' + teacher.name)">
+          Agendar Hora
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
