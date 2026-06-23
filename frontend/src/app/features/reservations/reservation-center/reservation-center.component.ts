@@ -32,7 +32,7 @@ export class ReservationCenterComponent {
   // We will simulate real time scheduling by giving teachers a fixed day/hour for their next slot
   teachers: { id: number, name: string, subject: string, day: string, startHour: number, modality: 'Presencial' | 'Online', nextSlotStr: string }[] = [
     { id: 1, name: 'Osvaldo Baeza', subject: 'Desarrollo Frontend', day: 'Viernes', startHour: 15, modality: 'Presencial', nextSlotStr: 'Viernes, 15:00 hrs' },
-    { id: 2, name: 'María González', subject: 'Bases de Datos', day: 'Jueves', startHour: 10, modality: 'Online', nextSlotStr: 'Jueves, 10:00 hrs' }
+    { id: 2, name: 'María González', subject: 'Bases de Datos', day: 'Lunes', startHour: 16, modality: 'Online', nextSlotStr: 'Lunes, 16:00 hrs' }
   ];
 
   setTab(tab: 'labs' | 'tutors') {
@@ -46,7 +46,18 @@ export class ReservationCenterComponent {
   }
 
   scheduleTutor(teacher: any) {
-    this.studentDataService.scheduleAppointment(teacher.name, teacher.subject, teacher.day, teacher.startHour, teacher.modality);
-    this.toastService.show(`¡Cita agendada con éxito con ${teacher.name}!`, 'success');
+    const scheduled = this.studentDataService.scheduleAppointment(
+      teacher.name,
+      teacher.subject,
+      teacher.day,
+      teacher.startHour,
+      teacher.modality
+    );
+
+    if (scheduled) {
+      this.toastService.show(`¡Cita agendada con éxito con ${teacher.name}!`, 'success');
+    } else {
+      this.toastService.show(`Ese horario ya está ocupado. Elige otro docente o cancela la cita existente.`, 'error');
+    }
   }
 }

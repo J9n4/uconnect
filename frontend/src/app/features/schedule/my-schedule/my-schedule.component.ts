@@ -49,17 +49,22 @@ export class MyScheduleComponent implements OnInit {
     });
   }
 
-  getClassForSlot(day: string, hourString: string) {
+  getClassForSlot(day: string, hourString: string): ClassSchedule | undefined {
     const hour = parseInt(hourString.split(':')[0], 10);
     return this.scheduleItems.find(c => c.day === day && c.startHour === hour);
   }
 
   isSlotOccupied(day: string, hourString: string): boolean {
     const currentHour = parseInt(hourString.split(':')[0], 10);
-    return this.scheduleItems.some(c => 
-      c.day === day && 
-      currentHour > c.startHour && 
+    return this.scheduleItems.some(c =>
+      c.day === day &&
+      currentHour > c.startHour &&
       currentHour < (c.startHour + c.duration)
     );
+  }
+
+  /** Evita celdas extra cuando un rowspan de otra fila ya ocupa la columna. */
+  shouldRenderDayCell(day: string, hourString: string): boolean {
+    return !this.isSlotOccupied(day, hourString);
   }
 }

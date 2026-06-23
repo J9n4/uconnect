@@ -35,6 +35,6 @@ export class MyRequestsComponent {
 
   cancelTutor(id: string, teacher: string) {
     this.studentDataService.cancelAppointment(id);
-    this.toastService.show(`Cita con ${teacher} cancelada correctamente`, 'error');
+    this.toastService.show(`Cita con ${teacher} cancelada correctamente`, 'success');
   }
 }

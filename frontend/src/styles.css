@@ -24,8 +24,11 @@
   
   /* Bordes y Sombras Profesionales */
   --border-color: #e2e8f0;
+  --border-strong: #cbd5e1;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-panel: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 14px rgba(15, 23, 42, 0.07);
+  --shadow-panel-hover: 0 4px 8px rgba(15, 23, 42, 0.08), 0 10px 28px rgba(15, 23, 42, 0.08);
   
   /* Bordes redondeados */
   --radius-md: 8px;

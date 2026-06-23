@@ -87,7 +87,12 @@ export class StudentDataService {
     this.equipmentRequestsSubject.next(current.filter(req => req.id !== id));
   }
 
-  scheduleAppointment(teacher: string, subject: string, day: string, startHour: number, modality: 'Presencial' | 'Online') {
+  scheduleAppointment(teacher: string, subject: string, day: string, startHour: number, modality: 'Presencial' | 'Online'): boolean {
+    const duration = 1;
+    if (this.hasScheduleConflict(day, startHour, duration)) {
+      return false;
+    }
+
     const current = this.tutorAppointmentsSubject.getValue();
     const newId = `APT-${Math.floor(Math.random() * 900) + 100}`;
     const newApt: TutorAppointment = {
@@ -96,11 +101,24 @@ export class StudentDataService {
       subject,
       day,
       startHour,
-      duration: 1, // Por defecto 1 hora
+      duration,
       modality,
       room: modality === 'Presencial' ? 'Sala de Tutorías' : 'Google Meet'
     };
     this.tutorAppointmentsSubject.next([newApt, ...current]);
+    return true;
+  }
+
+  private hasScheduleConflict(day: string, startHour: number, duration: number): boolean {
+    const endHour = startHour + duration;
+    const classes = this.classesSubject.getValue();
+    const appointments = this.tutorAppointmentsSubject.getValue();
+
+    const overlaps = (itemDay: string, itemStart: number, itemDuration: number) =>
+      itemDay === day && startHour < itemStart + itemDuration && endHour > itemStart;
+
+    return classes.some(c => overlaps(c.day, c.startHour, c.duration)) ||
+      appointments.some(a => overlaps(a.day, a.startHour, a.duration));
   }
 
   cancelAppointment(id: string) {
