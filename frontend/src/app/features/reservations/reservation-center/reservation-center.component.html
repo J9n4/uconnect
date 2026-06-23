@@ -39,7 +39,7 @@
         <button 
           class="btn-primary" 
           [disabled]="item.available === 0"
-          (click)="requestReservation(item.name)">
+          (click)="requestEquipment(item)">
           {{ item.available > 0 ? 'Solicitar' : 'Agotado' }}
         </button>
       </div>
@@ -59,14 +59,14 @@
           <div class="slot-info">
             <div class="info-row">
               <lucide-icon [img]="ClockIcon" class="icon-xs"></lucide-icon>
-              <span>{{ teacher.nextSlot }}</span>
+              <span>{{ teacher.nextSlotStr }}</span>
             </div>
             <div class="info-row">
               <span class="badge" [ngClass]="teacher.modality.toLowerCase()">{{ teacher.modality }}</span>
             </div>
           </div>
         </div>
-        <button class="btn-primary outline" (click)="requestReservation('tutoría con ' + teacher.name)">
+        <button class="btn-primary outline" (click)="scheduleTutor(teacher)">
           Agendar Hora
         </button>
       </div>

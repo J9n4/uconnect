@@ -1,50 +1,34 @@
 .schedule-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.25rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 1rem 1rem 1rem; /* Margen superior amplio para evitar solapamientos */
+  padding: 1.5rem 1rem 1rem;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   h1 { font-size: 2.25rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.75px; }
   p { color: #64748b; font-size: 1rem; margin: 0.25rem 0 0 0; }
-
-  .btn-export {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.65rem 1.25rem;
-    background: white;
-    border: 1px solid #cbd5e1;
-    color: #334155;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover { background: #f8fafc; border-color: #94a3b8; }
-  }
 }
 
 .schedule-grid-wrapper {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 14px rgba(15, 23, 42, 0.07);
   overflow: hidden;
 }
 
 .schedule-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* Fuerza a que todas las columnas midan exactamente lo mismo */
+  table-layout: fixed;
+  --slot-height: 64px;
 
   th, td {
     border: 1px solid #e2e8f0;
@@ -52,91 +36,153 @@
   }
 
   thead {
-    background: #f8fafc;
+    background: #f1f5f9;
     th {
-      padding: 1.25rem 1rem;
+      padding: 0.85rem 0.75rem;
       font-weight: 700;
       color: #475569;
       text-transform: uppercase;
-      font-size: 0.8rem;
-      letter-spacing: 0.75px;
+      font-size: 0.75rem;
+      letter-spacing: 0.6px;
+      text-align: center;
     }
-    .time-col { width: 90px; } /* Ancho fijo y controlado para la columna de horas */
+    .time-col {
+      width: 72px;
+      text-align: center;
+    }
   }
 
   tbody {
     .time-cell {
-      padding: 1.5rem 0;
+      width: 72px;
+      height: var(--slot-height);
+      padding: 0;
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       color: #64748b;
       font-weight: 700;
       background: #f8fafc;
+      vertical-align: middle;
     }
 
     .empty-cell {
-      height: 90px; /* Altura generosa para que las tarjetas no colapsen */
+      height: var(--slot-height);
+      background: #fafbfc;
     }
 
     .class-cell-container {
-      padding: 8px;
+      padding: 4px;
+      background: #ffffff;
+      vertical-align: top;
+
+      &.is-appointment {
+        padding: 3px 4px;
+      }
     }
   }
 }
 
-/* --- TARJETAS DE CLASE REDISEÑADAS --- */
 .class-card {
-  height: calc(100% - 16px);
-  min-height: 80px;
-  border-radius: 10px;
-  padding: 0.85rem;
+  height: 100%;
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.3rem;
   box-sizing: border-box;
+  border: 1px solid transparent;
   border-left: 4px solid transparent;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 3px 10px -2px rgba(0, 0, 0, 0.1);
   }
 
-  h4 { 
-    font-size: 0.95rem; 
-    font-weight: 700; 
-    color: #0f172a; 
-    margin: 0; 
-    line-height: 1.3; 
+  h4 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.25;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   .class-details {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    margin-top: auto; /* Empuja los detalles abajo sin romper el flujo */
+    gap: 0.18rem;
   }
-  
+
   .detail-row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
+    gap: 0.3rem;
+    font-size: 0.72rem;
     color: #475569;
     font-weight: 500;
-    
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     ::v-deep lucide-icon, lucide-icon {
-      width: 14px !important;
-      height: 14px !important;
+      width: 12px !important;
+      height: 12px !important;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       color: currentColor;
+      flex-shrink: 0;
     }
   }
 
-  &.theory { background: #eff6ff; border-left-color: #3b82f6; h4 { color: #1e3a8a; } .detail-row { color: #2563eb; } }
-  &.lab { background: #f0fdf4; border-left-color: #22c55e; h4 { color: #14532d; } .detail-row { color: #16a34a; } }
-  &.workshop { background: #fdf4ff; border-left-color: #d946ef; h4 { color: #701a75; } .detail-row { color: #c026d3; } }
+  &.dur-2 .class-details,
+  &.dur-3 .class-details {
+    gap: 0.28rem;
+  }
+
+  &.dur-2 h4,
+  &.dur-3 h4 {
+    -webkit-line-clamp: 3;
+  }
+
+  &.theory {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    border-left-color: #3b82f6;
+    h4 { color: #1e3a8a; }
+    .detail-row { color: #2563eb; }
+  }
+
+  &.lab {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    border-left-color: #22c55e;
+    h4 { color: #14532d; }
+    .detail-row { color: #16a34a; }
+  }
+
+  &.workshop {
+    background: #fdf4ff;
+    border-color: #f5d0fe;
+    border-left-color: #d946ef;
+    h4 { color: #701a75; }
+    .detail-row { color: #c026d3; }
+  }
+
+  &.appointment {
+    background: #fffbeb;
+    border-color: #fde68a;
+    border-left-color: #f59e0b;
+    padding: 0.35rem 0.5rem;
+    gap: 0.15rem;
+    justify-content: center;
+    h4 { color: #92400e; font-size: 0.75rem; -webkit-line-clamp: 2; }
+    .detail-row { color: #d97706; font-size: 0.65rem; }
+    .class-details { gap: 0.1rem; }
+  }
 }

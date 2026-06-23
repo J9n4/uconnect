@@ -17,7 +17,7 @@
       </div>
       <div class="stat-info">
         <h3>Préstamos Activos</h3>
-        <p class="stat-number">{{ activeLoans }}</p>
+        <p class="stat-number">{{ activeLoans$ | async }}</p>
       </div>
     </div>
 
@@ -35,10 +35,17 @@
       <div class="stat-icon bg-yellow">
         <lucide-icon [img]="ClockIcon"></lucide-icon>
       </div>
-      <div class="stat-info">
-        <h3>Próxima Devolución</h3>
-        <p class="stat-text">Hoy, 18:00 hrs</p>
+      <div class="stat-info" *ngIf="(nextActivity$ | async) as activity; else noActivity">
+        <h3>Próxima Actividad</h3>
+        <p class="stat-text" style="font-weight: bold; margin-bottom: 0.2rem;">{{ activity.title }}</p>
+        <p class="stat-text">{{ activity.time }}</p>
       </div>
+      <ng-template #noActivity>
+        <div class="stat-info">
+          <h3>Próxima Actividad</h3>
+          <p class="stat-text">Sin actividades próximas</p>
+        </div>
+      </ng-template>
     </div>
 
   </div>
