@@ -5,10 +5,6 @@
       <h1>Mi Horario</h1>
       <p>Semana del 14 al 18 de Octubre</p>
     </div>
-    <button class="btn-export">
-      <lucide-icon [img]="CalendarIcon" class="icon-sm"></lucide-icon>
-      Sincronizar Calendario
-    </button>
   </header>
 
   <div class="schedule-grid-wrapper">
@@ -40,6 +36,10 @@
                   <div class="detail-row">
                     <lucide-icon [img]="ClockIcon"></lucide-icon>
                     <span>{{ classObj.duration }} hrs</span>
+                  </div>
+                  <div class="detail-row" *ngIf="classObj.teacher">
+                    <lucide-icon [img]="UsersIcon"></lucide-icon>
+                    <span>{{ classObj.teacher }}</span>
                   </div>
                 </div>
               </div>

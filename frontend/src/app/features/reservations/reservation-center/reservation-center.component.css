@@ -1,21 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 .reservations-container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 1rem 1rem 1rem; /* Misma simetría limpia */
+  padding: 2.5rem 1rem 1rem 1rem;
+  font-family: 'Inter', sans-serif;
 }
 
 .page-header {
-  h1 { font-size: 2rem; color: #0f172a; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-  p { color: #64748b; font-size: 1rem; }
+  h1 { 
+    font-size: 2.5rem; 
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.5rem; 
+    letter-spacing: -0.5px; 
+  }
+  p { color: #64748b; font-size: 1.1rem; margin: 0; }
 }
 
 /* --- TABS --- */
 .tabs-container {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 1px;
 }
@@ -23,19 +32,26 @@
 .tab-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   background: none;
   border: none;
   padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
   border-bottom: 3px solid transparent;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
   margin-bottom: -2px;
 
-  .icon-sm { width: 18px; height: 18px; }
+  ::v-deep lucide-icon, .icon-sm { 
+    width: 18px; 
+    height: 18px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+  }
 
   &:hover { color: #3b82f6; }
   
@@ -48,9 +64,9 @@
 /* --- CARDS GRID --- */
 .grid-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  animation: fadeIn 0.3s ease-in-out;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
 @keyframes fadeIn {
@@ -60,44 +76,62 @@
 
 .card {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 16px;
+  padding: 1.75rem;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 1.5rem;
+  transition: box-shadow 0.2s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
     border-color: #cbd5e1;
   }
 
-  .card-emoji { font-size: 3rem; text-align: center; background: #f8fafc; border-radius: 12px; padding: 1rem; }
-  .card-avatar { width: 64px; height: 64px; background: #eff6ff; color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; lucide-icon { width: 32px; height: 32px; } }
+  .card-emoji { 
+    font-size: 3rem; 
+    text-align: center; 
+    background: #f8fafc;
+    border-radius: 16px; 
+    padding: 1.5rem; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .card-avatar { 
+    width: 72px; height: 72px; 
+    background: #eff6ff;
+    color: #3b82f6; 
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    margin: 0 auto; 
+    ::v-deep lucide-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; } 
+  }
 
   .card-info {
     text-align: center;
     flex: 1;
 
-    h3 { font-size: 1.1rem; color: #0f172a; margin-bottom: 0.25rem; }
-    .subtitle { font-size: 0.85rem; color: #64748b; margin-bottom: 1rem; }
+    h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0 0 0.35rem 0; }
+    .subtitle { font-size: 0.9rem; color: #64748b; margin: 0 0 1.25rem 0; font-weight: 500; }
 
     /* Lab Status */
     .availability {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
       font-size: 0.85rem;
-      color: #475569;
-      background: #f8fafc;
-      padding: 0.5rem;
-      border-radius: 8px;
+      font-weight: 600;
+      color: #334155;
+      background: #f1f5f9;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
 
-      .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+      .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
       .status-dot.out-of-stock { background: #ef4444; }
     }
 
@@ -105,16 +139,32 @@
     .slot-info {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.6rem;
       background: #f8fafc;
-      padding: 0.75rem;
-      border-radius: 8px;
+      padding: 1rem;
+      border-radius: 12px;
 
-      .info-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; color: #475569; }
-      .icon-xs { width: 14px; height: 14px; color: #94a3b8; }
+      .info-row { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 0.5rem; 
+        font-size: 0.85rem; 
+        color: #475569; 
+        font-weight: 500; 
+      }
+      
+      ::v-deep lucide-icon, .icon-xs { 
+        width: 16px; 
+        height: 16px; 
+        color: #64748b; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
       
       .badge { 
-        font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; text-transform: uppercase;
+        font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;
         &.presencial { background: #dcfce7; color: #166534; }
         &.online { background: #dbeafe; color: #1e40af; }
       }
@@ -124,24 +174,35 @@
   /* Botones */
   .btn-primary {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.85rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
     background: #3b82f6;
     color: white;
-    transition: background 0.2s;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 
-    &:hover:not(:disabled) { background: #2563eb; }
+    &:hover:not(:disabled) { 
+      background: #2563eb;
+    }
     
-    &:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+    &:disabled { 
+      background: #e2e8f0; color: #94a3b8; cursor: not-allowed; 
+    }
 
     &.outline {
       background: transparent;
       border: 1px solid #3b82f6;
       color: #3b82f6;
-      &:hover { background: #eff6ff; }
+      &:hover { 
+        background: #eff6ff; 
+      }
     }
   }
 }

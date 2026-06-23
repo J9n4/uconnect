@@ -139,4 +139,5 @@
   &.theory { background: #eff6ff; border-left-color: #3b82f6; h4 { color: #1e3a8a; } .detail-row { color: #2563eb; } }
   &.lab { background: #f0fdf4; border-left-color: #22c55e; h4 { color: #14532d; } .detail-row { color: #16a34a; } }
   &.workshop { background: #fdf4ff; border-left-color: #d946ef; h4 { color: #701a75; } .detail-row { color: #c026d3; } }
+  &.appointment { background: #fffbeb; border-left-color: #f59e0b; h4 { color: #92400e; } .detail-row { color: #d97706; } }
 }

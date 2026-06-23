@@ -26,7 +26,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (req of equipmentRequests; track req.id) {
+          @for (req of studentDataService.equipmentRequests$ | async; track req.id) {
             <tr>
               <td class="id-cell">{{ req.id }}</td>
               <td class="bold-cell">{{ req.name }}</td>
@@ -62,7 +62,7 @@
     </div>
 
     <div class="appointments-grid">
-      @for (apt of tutorAppointments; track apt.id) {
+      @for (apt of studentDataService.tutorAppointments$ | async; track apt.id) {
         <div class="appointment-card">
           <div class="card-header">
             <span class="badge-modality" [ngClass]="apt.modality.toLowerCase()">{{ apt.modality }}</span>
@@ -76,7 +76,7 @@
             <div class="meta-info">
               <div class="info-item">
                 <lucide-icon [img]="ClockIcon" class="icon-xs"></lucide-icon>
-                <span>{{ apt.dateTime }}</span>
+                <span>{{ apt.day }}, {{ apt.startHour }}:00 hrs</span>
               </div>
               <div class="info-item">
                 <lucide-icon [img]="CalendarIcon" class="icon-xs"></lucide-icon>
