@@ -25,4 +25,8 @@ class Usuario extends Model
         'estado', 
         'fecha_registro'
     ];
+
+    protected $casts = [
+        'fecha_registro' => 'datetime',
+    ];
 }

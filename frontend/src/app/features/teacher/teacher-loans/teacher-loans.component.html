@@ -1,0 +1,198 @@
+<div class="loans-container">
+  
+  <header class="welcome-banner">
+    <div>
+      <h1>Gestión de Solicitudes y Recursos</h1>
+      <p>Administra los préstamos de equipos y solicitudes de tutoría académica.</p>
+    </div>
+    <div class="role-badge">
+      <span>Gestor Docente</span>
+    </div>
+  </header>
+
+  <!-- Pestañas de Navegación -->
+  <div class="tabs-nav">
+    <button [class.active]="activeTab === 'loans'" (click)="setTab('loans')">
+      <lucide-icon [img]="MonitorIcon" class="icon-sm"></lucide-icon> Préstamos de Equipos
+    </button>
+    <button [class.active]="activeTab === 'tutorings'" (click)="setTab('tutorings')">
+      <lucide-icon [img]="CalendarIcon" class="icon-sm"></lucide-icon> Tutorías Solicitadas
+    </button>
+  </div>
+
+  <!-- PESTAÑA: PRÉSTAMOS DE EQUIPOS -->
+  <div class="loans-card" *ngIf="activeTab === 'loans'">
+    <div class="card-header">
+      <h2>Listado de Préstamos de Laboratorio</h2>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="loans-table">
+        <thead>
+          <tr>
+            <th>ID Solicitud</th>
+            <th>Estudiante</th>
+            <th>Equipo Solicitado</th>
+            <th>Laboratorio</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let loan of equipmentRequests">
+            <td><strong>{{ loan.id }}</strong></td>
+            <td>{{ loan.studentName || 'Estudiante Uconnect' }}</td>
+            <td>{{ loan.name }}</td>
+            <td>{{ loan.lab }}</td>
+            <td>{{ loan.date }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-pending': loan.status === 'Pendiente',
+                'badge-approved': loan.status === 'Aprobado',
+                'badge-delivered': loan.status === 'Entregado',
+                'badge-returned': loan.status === 'Devuelto',
+                'badge-rejected': loan.status === 'Cancelado'
+              }">{{ loan.status }}</span>
+            </td>
+            <td>
+              <div class="action-buttons" *ngIf="loan.status === 'Pendiente'">
+                <button class="btn-success" (click)="approveLoan(loan)">
+                  <lucide-icon [img]="CheckIcon" class="icon-sm"></lucide-icon> Aprobar
+                </button>
+              </div>
+              <div class="action-buttons" *ngIf="loan.status === 'Aprobado'">
+                <button class="btn-primary" (click)="deliverLoan(loan)">
+                  Entregar Equipo
+                </button>
+              </div>
+              <div class="action-buttons" *ngIf="loan.status === 'Entregado'">
+                <button class="btn-info" (click)="returnLoan(loan)">
+                  Confirmar Devolución
+                </button>
+              </div>
+              <span class="no-actions" *ngIf="loan.status === 'Devuelto' || loan.status === 'Cancelado'">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PESTAÑA: TUTORÍAS SOLICITADAS -->
+  <div class="loans-card" *ngIf="activeTab === 'tutorings'">
+    <div class="card-header">
+      <h2>Listado de Citas de Tutorías</h2>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="loans-table">
+        <thead>
+          <tr>
+            <th>ID Cita</th>
+            <th>Estudiante</th>
+            <th>Materia</th>
+            <th>Horario Solicitado</th>
+            <th>Modalidad</th>
+            <th>Ubicación / Link</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let apt of tutorAppointments">
+            <td><strong>{{ apt.id }}</strong></td>
+            <td>{{ apt.studentName }}</td>
+            <td>{{ apt.subject }}</td>
+            <td>{{ apt.day }} a las {{ apt.startHour }}:00 hrs</td>
+            <td>{{ apt.modality }}</td>
+            <td>{{ apt.room }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'badge-pending': apt.status === 'Pendiente',
+                'badge-approved': apt.status === 'Aceptada' || apt.status === 'Reagendada',
+                'badge-rejected': apt.status === 'Cancelada'
+              }">{{ apt.status }}</span>
+            </td>
+            <td>
+              <div class="action-buttons" *ngIf="apt.status === 'Pendiente'">
+                <button class="btn-success" (click)="acceptTutoring(apt)">
+                  <lucide-icon [img]="CheckIcon" class="icon-sm"></lucide-icon> Aceptar
+                </button>
+                <button class="btn-primary" (click)="openReschedule(apt)">
+                  <lucide-icon [img]="EditIcon" class="icon-sm"></lucide-icon> Reagendar
+                </button>
+                <button class="btn-danger" (click)="rejectTutoring(apt)">
+                  <lucide-icon [img]="XIcon" class="icon-sm"></lucide-icon> Rechazar
+                </button>
+              </div>
+              <div class="action-buttons" *ngIf="apt.status === 'Aceptada' || apt.status === 'Reagendada'">
+                <button class="btn-primary" (click)="openReschedule(apt)">
+                  <lucide-icon [img]="EditIcon" class="icon-sm"></lucide-icon> Modificar / Reagendar
+                </button>
+                <button class="btn-danger" (click)="rejectTutoring(apt)">
+                  Cancelar Cita
+                </button>
+              </div>
+              <span class="no-actions" *ngIf="apt.status === 'Cancelada'">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL DE REAGENDAMIENTO -->
+  <div class="modal-overlay" *ngIf="showRescheduleModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Reprogramar Horario de Tutoría</h3>
+        <button class="btn-close" (click)="closeReschedule()">
+          <lucide-icon [img]="XIcon" class="icon-sm"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="selectedAppointment">
+        <p class="modal-info-text">
+          Estudiante: <strong>{{ selectedAppointment.studentName }}</strong><br>
+          Materia: <strong>{{ selectedAppointment.subject }}</strong>
+        </p>
+
+        <form (ngSubmit)="saveReschedule()">
+          <div class="form-group">
+            <label for="modalDay">Día de la semana</label>
+            <select id="modalDay" name="modalDay" [(ngModel)]="rescheduleForm.day">
+              <option *ngFor="let d of weekDays" [value]="d">{{ d }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modalHour">Hora de inicio</label>
+            <select id="modalHour" name="modalHour" [(ngModel)]="rescheduleForm.startHour">
+              <option *ngFor="let h of timeSlots" [value]="h.split(':')[0]">{{ h }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modalModality">Modalidad</label>
+            <select id="modalModality" name="modalModality" [(ngModel)]="rescheduleForm.modality">
+              <option value="Presencial">Presencial</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modalRoom">Ubicación / Aula / Link Virtual</label>
+            <input type="text" id="modalRoom" name="modalRoom" [(ngModel)]="rescheduleForm.room" placeholder="Ej: Laboratorio 3 o Enlace Meet">
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="closeReschedule()">Cancelar</button>
+            <button type="submit" class="btn-success">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>

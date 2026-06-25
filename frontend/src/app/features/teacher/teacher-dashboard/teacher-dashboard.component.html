@@ -1,71 +1,135 @@
 <div class="dashboard-container">
   
+  <!-- Welcome Banner -->
   <header class="welcome-banner">
-    <div>
-      <h1>Bienvenido, Prof. {{ teacherName }}</h1>
-      <p>Panel de gestión académica y atención a estudiantes.</p>
-    </div>
-    <div class="role-badge">
-      <span>Docente FIN</span>
+    <div class="welcome-text">
+      <h1>Bienvenido, {{ teacherName }}</h1>
+      <p>Hoy es {{ currentDay }}</p>
     </div>
   </header>
 
+  <!-- Stats Grid -->
   <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon bg-blue">
-        <lucide-icon [img]="MessageIcon"></lucide-icon>
-      </div>
+    
+    <div class="stat-card" (click)="goToMessages()">
       <div class="stat-info">
-        <h3>Consultas Pendientes</h3>
-        <p class="stat-number">{{ pendingMessages }}</p>
+        <span class="stat-label">Mensajes nuevos</span>
+        <p class="stat-number">{{ stats.newMessages }}</p>
+        <span class="stat-subtext">Sin leer</span>
+      </div>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="MessageIcon" class="stat-icon"></lucide-icon>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="goToLoans()">
+      <div class="stat-info">
+        <span class="stat-label">Solicitudes pendientes</span>
+        <p class="stat-number">{{ stats.pendingRequests }}</p>
+        <span class="stat-subtext">Por revisar</span>
+      </div>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="FileTextIcon" class="stat-icon"></lucide-icon>
       </div>
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon bg-green">
-        <lucide-icon [img]="CalendarIcon"></lucide-icon>
-      </div>
       <div class="stat-info">
-        <h3>Atenciones Hoy</h3>
-        <p class="stat-number">{{ todaySchedules }}</p>
+        <span class="stat-label">Estudiantes activos</span>
+        <p class="stat-number">{{ stats.activeStudents }}</p>
+        <span class="stat-subtext">Este semestre</span>
+      </div>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="UsersIcon" class="stat-icon"></lucide-icon>
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-icon bg-yellow">
-        <lucide-icon [img]="UsersIcon"></lucide-icon>
-      </div>
+    <div class="stat-card" (click)="goToSchedule()">
       <div class="stat-info">
-        <h3>Alumnos Activos</h3>
-        <p class="stat-number">124</p>
+        <span class="stat-label">Horario hoy</span>
+        <p class="stat-number">{{ stats.todayHours }}</p>
+        <span class="stat-subtext">De atención</span>
+      </div>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="ClockIcon" class="stat-icon"></lucide-icon>
       </div>
     </div>
+
   </div>
 
-  <section class="schedules-section">
-    <div class="section-header">
-      <h2>Próximos Horarios de Atención</h2>
-      <button class="btn-text">Ver todos</button>
-    </div>
+  <!-- Content Sections Split -->
+  <div class="dashboard-split">
+    
+    <!-- Left Column: Messages -->
+    <section class="messages-section flex-main">
+      <div class="section-header">
+        <h2>Mensajes de estudiantes</h2>
+        <button class="btn-link" (click)="goToMessages()">Ver todos</button>
+      </div>
 
-    <div class="schedule-list">
-      <div class="schedule-card" *ngFor="let schedule of upcomingSchedules">
-        <div class="time-block">
-          <lucide-icon [img]="ClockIcon" class="icon-sm"></lucide-icon>
-          <div>
-            <span class="day">{{ schedule.day }}</span>
-            <span class="time">{{ schedule.time }}</span>
+      <div class="messages-list">
+        <div class="message-item" *ngFor="let msg of messages" (click)="goToMessages()">
+          <img [src]="msg.avatar" alt="Avatar" class="student-avatar">
+          <div class="message-body">
+            <div class="message-top">
+              <span class="student-name">{{ msg.studentName }}</span>
+              <span class="unread-dot" *ngIf="msg.isUnread"></span>
+            </div>
+            <p class="message-text">{{ msg.text }}</p>
+            <span class="message-date">{{ msg.date }}</span>
           </div>
         </div>
-        
-        <div class="details-block">
-          <span class="modality" [ngClass]="schedule.modality.toLowerCase()">
-            {{ schedule.modality }}
-          </span>
-          <span class="room">{{ schedule.room }}</span>
-        </div>
       </div>
+    </section>
+
+    <!-- Right Column: Horario & Acciones -->
+    <div class="flex-side">
+      
+      <!-- Horario de Hoy -->
+      <section class="schedule-section">
+        <h3>Horario de hoy</h3>
+        <div class="schedule-list">
+          <div class="schedule-item" *ngFor="let item of todaySchedules">
+            <div class="schedule-icon-box">
+              <lucide-icon [img]="item.icon === 'clock' ? ClockIcon : BookIcon" class="schedule-icon"></lucide-icon>
+            </div>
+            <div class="schedule-info">
+              <span class="schedule-time">{{ item.time }}</span>
+              <span class="schedule-title">{{ item.title }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Acciones Rápidas -->
+      <section class="actions-section">
+        <h3>Acciones rápidas</h3>
+        <div class="actions-list">
+          <button class="action-btn" (click)="goToMessages()">
+            <div class="btn-left">
+              <lucide-icon [img]="MessageIcon" class="action-btn-icon"></lucide-icon>
+              <span>Responder mensajes</span>
+            </div>
+          </button>
+
+          <button class="action-btn" (click)="goToLoans()">
+            <div class="btn-left">
+              <lucide-icon [img]="FileTextIcon" class="action-btn-icon"></lucide-icon>
+              <span>Revisar solicitudes</span>
+            </div>
+          </button>
+
+          <button class="action-btn" (click)="goToSchedule()">
+            <div class="btn-left">
+              <lucide-icon [img]="ClockIcon" class="action-btn-icon"></lucide-icon>
+              <span>Gestionar horarios</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
     </div>
-  </section>
+
+  </div>
 
 </div>

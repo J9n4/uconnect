@@ -17,12 +17,14 @@ class UsuarioController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
-            'correo' => 'required|string|email|max:255',
+            'correo' => 'required|string|email|max:255|unique:Usuario,correo',
             'contrasena' => 'required|string|min:6',
             'rol' => 'required|string|max:50',
             'estado' => 'required|string|max:50',
             'fecha_registro' => 'nullable|date',
         ]);
+
+        $validated['contrasena'] = password_hash($validated['contrasena'], PASSWORD_BCRYPT);
 
         $usuario = Usuario::create($validated);
         return response()->json($usuario, 201);
@@ -40,7 +42,12 @@ class UsuarioController extends Controller
         $usuario = Usuario::find($id);
         if (!$usuario) return response()->json(['message' => 'Usuario no encontrado'], 404);
 
-        $usuario->update($request->all());
+        $data = $request->all();
+        if (isset($data['contrasena']) && !empty($data['contrasena'])) {
+            $data['contrasena'] = password_hash($data['contrasena'], PASSWORD_BCRYPT);
+        }
+
+        $usuario->update($data);
         return response()->json($usuario, 200);
     }
 

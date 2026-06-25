@@ -15,10 +15,12 @@ class MensajeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'asunto' => 'required|string|max:255',
+            'id_emisor' => 'required|integer',
+            'id_receptor' => 'required|integer',
+            'asunto' => 'nullable|string|max:255',
             'contenido' => 'required|string',
             'fecha_envio' => 'required|date',
-            'leido' => 'required|string|max:10',
+            'leido' => 'required|boolean',
         ]);
 
         $mensaje = Mensaje::create($validated);

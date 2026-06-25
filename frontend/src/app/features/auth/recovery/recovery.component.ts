@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, ArrowLeft, MailCheck } from 'lucide-angular';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-recovery',
@@ -13,6 +14,7 @@ import { LucideAngularModule, ArrowLeft, MailCheck } from 'lucide-angular';
 })
 export class RecoveryComponent {
   private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
 
   // Iconos
   readonly ArrowLeftIcon = ArrowLeft;
@@ -25,6 +27,7 @@ export class RecoveryComponent {
 
   isLoading = false;
   isSuccess = false; // Para mostrar el mensaje de éxito
+  errorMessage = '';
 
   onSubmit() {
     if (this.recoveryForm.invalid) {
@@ -33,12 +36,20 @@ export class RecoveryComponent {
     }
 
     this.isLoading = true;
+    this.errorMessage = '';
 
-    // Simulamos la llamada a tu API de Laravel
-    setTimeout(() => {
-      this.isLoading = false;
-      this.isSuccess = true;
-    }, 1500);
+    const payload = { correo: this.recoveryForm.value.email };
+
+    this.http.post('http://127.0.0.1:8000/api/forgot-password', payload).subscribe({
+      next: (response: any) => {
+        this.isLoading = false;
+        this.isSuccess = true;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = error.error?.message || 'Ocurrió un error al intentar enviar el correo.';
+      }
+    });
   }
 
   get f() { return this.recoveryForm.controls; }

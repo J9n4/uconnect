@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Para el input del mensaje
+import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Send, User } from 'lucide-angular';
+import { StudentDataService, Chat } from '../../../core/services/student-data.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-message-center',
@@ -11,53 +13,61 @@ import { LucideAngularModule, Search, Send, User } from 'lucide-angular';
   styleUrl: './message-center.component.css'
 })
 export class MessageCenterComponent implements OnInit {
+  private studentDataService = inject(StudentDataService);
+  private authService = inject(AuthService);
+
   // Iconos
   readonly SearchIcon = Search;
   readonly SendIcon = Send;
   readonly UserIcon = User;
 
-  currentUserRole = 'STUDENT'; // Lo leeremos del localStorage
+  currentUserRole = 'STUDENT';
   newMessage = '';
-
-  // Lista de chats simulada
-  chats = [
-    { id: 1, name: 'Prof. Osvaldo Baeza', role: 'Docente FIN', lastMessage: 'Nos vemos en el laboratorio.', unread: 2, active: true },
-    { id: 2, name: 'Soporte TI', role: 'Administración', lastMessage: 'Tu clave ha sido reseteada.', unread: 0, active: false },
-    { id: 3, name: 'Prof. María González', role: 'Docente', lastMessage: 'Revisé tu avance del proyecto.', unread: 0, active: false }
-  ];
-
-  // Chat activo simulado
-  activeChat = {
-    name: 'Prof. Osvaldo Baeza',
-    role: 'Docente FIN',
-    messages: [
-      { sender: 'me', text: 'Profesor, ¿el laboratorio 3 estará abierto hoy en la tarde?', time: '10:30 AM' },
-      { sender: 'them', text: 'Hola Juan. Sí, a partir de las 15:00 hrs.', time: '11:15 AM' },
-      { sender: 'them', text: 'Nos vemos en el laboratorio.', time: '11:16 AM' }
-    ]
-  };
+  
+  // Lista de chats filtrada para la vista activa
+  chats: Chat[] = [];
+  activeChat: Chat | null = null;
 
   ngOnInit() {
-    if (typeof window !== 'undefined') {
-      this.currentUserRole = localStorage.getItem('uconnect_role') || 'STUDENT';
-    }
+    const currentUser = this.authService.getCurrentUser();
+    this.currentUserRole = currentUser?.role || 'STUDENT';
+
+    this.studentDataService.chats$.subscribe(allChats => {
+      // Filtrar chats según el rol
+      if (this.currentUserRole === 'TEACHER') {
+        // Profesores ven los chats de los alumnos
+        this.chats = allChats.filter(c => c.role === 'Estudiante');
+      } else {
+        // Alumnos ven los chats de los profesores/administradores
+        this.chats = allChats.filter(c => c.role !== 'Estudiante');
+      }
+
+      // Sincronizar el chat activo si hay uno seleccionado
+      if (this.activeChat) {
+        const updatedActive = this.chats.find(c => c.id === this.activeChat!.id);
+        if (updatedActive) {
+          this.activeChat = updatedActive;
+        }
+      } else if (this.chats.length > 0) {
+        // Seleccionar el primero por defecto
+        this.selectChat(this.chats[0].id);
+      }
+    });
   }
 
   sendMessage() {
-    if (this.newMessage.trim()) {
-      this.activeChat.messages.push({
-        sender: 'me',
-        text: this.newMessage,
-        time: 'Ahora'
-      });
-      this.newMessage = ''; // Limpiamos el input
+    if (this.newMessage.trim() && this.activeChat) {
+      // Enviar mensaje a través del servicio global
+      this.studentDataService.sendMessage(this.activeChat.id, this.newMessage, 'me');
+      this.newMessage = '';
     }
   }
 
   selectChat(chatId: number) {
-    this.chats.forEach(c => c.active = false);
     const selected = this.chats.find(c => c.id === chatId);
-    if (selected) selected.active = true;
-    // Aquí en el futuro cargaríamos los mensajes reales de la base de datos
+    if (selected) {
+      this.activeChat = selected;
+      selected.unread = 0; // Marcar como leídos
+    }
   }
 }

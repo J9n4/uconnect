@@ -266,3 +266,70 @@
   background: #cbd5e1;
   cursor: not-allowed;
 }
+
+/* --- ADICIONES PREMIUM --- */
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Burbuja de Notificación de Sistema */
+.system-message-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0.75rem 0;
+}
+
+.system-message-bubble {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px dashed #cbd5e1;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+/* Vista sin chat seleccionado */
+.no-chat-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  background: #f8fafc;
+}
+
+.no-chat-box {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  .no-chat-icon {
+    width: 48px;
+    height: 48px;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    color: #334155;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}

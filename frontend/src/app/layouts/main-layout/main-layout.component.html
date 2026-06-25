@@ -3,60 +3,78 @@
   <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
     <div class="sidebar-header">
       <div class="logo-area" *ngIf="!isSidebarCollapsed">
-        <div class="logo-icon">U</div>
-        <h2>Uconnect</h2>
+        <div class="logo-icon">u</div>
+        <h2>uConnect</h2>
       </div>
       <button class="btn-toggle" (click)="toggleSidebar()">
         <lucide-icon [img]="MenuIcon"></lucide-icon>
       </button>
     </div>
 
+    <div class="menu-label" *ngIf="!isSidebarCollapsed">MENÚ PRINCIPAL</div>
+
     <nav class="sidebar-nav">
-      <a [routerLink]="dashboardRoute" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="DashboardIcon"></lucide-icon>
-        <span *ngIf="!isSidebarCollapsed">Inicio</span>
-      </a>
-
-      <a routerLink="/messages" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="MessageIcon"></lucide-icon>
-        <span *ngIf="!isSidebarCollapsed">Mensajes</span>
-      </a>
-
-      <a routerLink="/reservations" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="CalendarIcon"></lucide-icon>
-        <span *ngIf="!isSidebarCollapsed">Reservas</span>
-      </a>
-
-      <a routerLink="/my-requests" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="UserIcon"></lucide-icon>
-        <span *ngIf="!isSidebarCollapsed">Mis Solicitudes</span>
-      </a>
-      
-      <a routerLink="/schedule" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="ScheduleIcon"></lucide-icon>
-        <span *ngIf="!isSidebarCollapsed">Mi Horario</span>
+      <a *ngFor="let item of navItems" 
+         [routerLink]="item.route" 
+         [queryParams]="item.queryParams"
+         routerLinkActive="active" 
+         class="nav-item">
+        <lucide-icon [img]="item.icon"></lucide-icon>
+        <span *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-profile" *ngIf="!isSidebarCollapsed">
-        <div class="avatar"><lucide-icon [img]="UserIcon"></lucide-icon></div>
+      <div class="user-profile" *ngIf="!isSidebarCollapsed && currentUser">
+        <img [src]="currentUser.avatar" alt="Avatar" class="avatar-img">
         <div class="info">
-          <p class="role">{{ userRole }}</p>
+          <p class="name">{{ currentUser.name }}</p>
+          <p class="role">{{ currentUser.roleLabel }}</p>
         </div>
       </div>
       <button class="btn-logout" (click)="logout()" [title]="isSidebarCollapsed ? 'Cerrar Sesión' : ''">
         <lucide-icon [img]="LogoutIcon"></lucide-icon>
-        <span *ngIf="!isSidebarCollapsed">Cerrar Sesión</span>
+        <span *ngIf="!isSidebarCollapsed">Cerrar sesión</span>
       </button>
     </div>
   </aside>
 
-  <main class="main-content">
-    <div class="content-wrapper">
-      <router-outlet></router-outlet>
-    </div>
-  </main>
+  <div class="main-area">
+    <header class="top-bar" *ngIf="currentUser">
+      <div class="top-left">
+        <h2 class="page-title">{{ activePageTitle }}</h2>
+      </div>
+      <div class="top-right">
+        <div class="notification-container" style="position: relative;">
+          <button class="btn-notification" title="Notificaciones" (click)="toggleNotifications()">
+            <lucide-icon [img]="BellIcon"></lucide-icon>
+            <span class="notification-badge" *ngIf="false"></span>
+          </button>
+          
+          <div class="notification-dropdown" *ngIf="isNotificationOpen" 
+               style="position: absolute; top: 100%; right: 0; background: white; border: 1px solid #eee; border-radius: 8px; width: 300px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000;">
+            <h4 style="margin: 0 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 8px; font-size: 14px; color: #333;">Notificaciones</h4>
+            <div style="font-size: 13px; color: #666; text-align: center; padding: 20px 0;">
+              No tienes nuevas notificaciones.
+            </div>
+          </div>
+        </div>
+        <div class="header-profile">
+          <img [src]="currentUser.avatar" alt="Profile" class="profile-img">
+          <div class="profile-details">
+            <span class="profile-name">{{ currentUser.name }}</span>
+            <span class="profile-specialty">{{ currentUser.specialty }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
 
   <app-toast-container></app-toast-container>
 </div>

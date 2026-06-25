@@ -1,66 +1,129 @@
 <div class="dashboard-container">
+  
+  <!-- Welcome Banner -->
   <header class="welcome-banner">
-    <div>
-      <h1>Hola, {{ studentName }} 👋</h1>
-      <p>Bienvenido a tu panel de control de Uconnect.</p>
-    </div>
-    <div class="date-badge">
-      <span>📅 Semestre Académico 2026</span>
+    <div class="welcome-text">
+      <h1>Bienvenido, {{ studentFirstName }}</h1>
+      <p>Aquí tienes un resumen de tu actividad académica</p>
     </div>
   </header>
 
+  <!-- Stats Grid -->
   <div class="stats-grid">
     
-    <div class="stat-card">
-      <div class="stat-icon bg-blue">
-        <lucide-icon [img]="MonitorIcon"></lucide-icon>
-      </div>
+    <div class="stat-card" (click)="goToMessages()">
       <div class="stat-info">
-        <h3>Préstamos Activos</h3>
-        <p class="stat-number">{{ activeLoans$ | async }}</p>
+        <span class="stat-label">Mensajes nuevos</span>
+        <p class="stat-number">{{ stats.newMessages }}</p>
+        <span class="stat-subtext">Sin leer</span>
+      </div>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="MessageIcon" class="stat-icon"></lucide-icon>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="goToLoans()">
+      <div class="stat-info">
+        <span class="stat-label">Préstamos activos</span>
+        <p class="stat-number">{{ stats.activeLoans }}</p>
+        <span class="stat-subtext">Equipos en uso</span>
+      </div>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="MonitorIcon" class="stat-icon"></lucide-icon>
+      </div>
+    </div>
+
+    <div class="stat-card" (click)="goToRequestLoan()">
+      <div class="stat-info">
+        <span class="stat-label">Equipos disponibles</span>
+        <p class="stat-number">{{ stats.availableEquipment }}</p>
+        <span class="stat-subtext">Para préstamo</span>
+      </div>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="MonitorIcon" class="stat-icon"></lucide-icon>
       </div>
     </div>
 
     <div class="stat-card">
-      <div class="stat-icon bg-green">
-        <lucide-icon [img]="BookOpenIcon"></lucide-icon>
-      </div>
       <div class="stat-info">
-        <h3>Mensajes Nuevos</h3>
-        <p class="stat-number">{{ unreadMessages }}</p>
+        <span class="stat-label">Notificaciones</span>
+        <p class="stat-number">{{ stats.notifications }}</p>
+        <span class="stat-subtext">Nuevas hoy</span>
       </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon bg-yellow">
-        <lucide-icon [img]="ClockIcon"></lucide-icon>
+      <div class="stat-icon-wrapper blue-theme">
+        <lucide-icon [img]="BellIcon" class="stat-icon"></lucide-icon>
       </div>
-      <div class="stat-info" *ngIf="(nextActivity$ | async) as activity; else noActivity">
-        <h3>Próxima Actividad</h3>
-        <p class="stat-text" style="font-weight: bold; margin-bottom: 0.2rem;">{{ activity.title }}</p>
-        <p class="stat-text">{{ activity.time }}</p>
-      </div>
-      <ng-template #noActivity>
-        <div class="stat-info">
-          <h3>Próxima Actividad</h3>
-          <p class="stat-text">Sin actividades próximas</p>
-        </div>
-      </ng-template>
     </div>
 
   </div>
 
-  <section class="notices-section">
-    <div class="section-header">
-      <h2>Avisos Recientes</h2>
-    </div>
-    <div class="notice-card">
-      <lucide-icon [img]="AlertIcon" class="notice-icon"></lucide-icon>
-      <div class="notice-content">
-        <h4>Actualización de Laboratorios</h4>
-        <p>Los equipos del laboratorio de Redes ya están disponibles para reserva.</p>
+  <!-- Content Sections Split -->
+  <div class="dashboard-split">
+    
+    <!-- Left Column: Recent Messages -->
+    <section class="messages-section flex-main">
+      <div class="section-header">
+        <h2>Mensajes recientes</h2>
+        <button class="btn-link" (click)="goToMessages()">Ver todos</button>
       </div>
+
+      <div class="messages-list">
+        <div class="message-item" *ngFor="let msg of recentMessages" (click)="goToMessages()">
+          <img [src]="msg.avatar" alt="Avatar" class="teacher-avatar">
+          <div class="message-body">
+            <div class="message-top">
+              <span class="teacher-name">{{ msg.senderName }}</span>
+              <span class="unread-dot" *ngIf="msg.isUnread"></span>
+            </div>
+            <p class="message-text">{{ msg.text }}</p>
+            <span class="message-date">{{ msg.date }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Active Loans & Notifications -->
+    <div class="flex-side">
+      
+      <!-- Préstamos Activos -->
+      <section class="loans-sidebar-card">
+        <div class="sidebar-card-header">
+          <h3>Préstamos activos</h3>
+          <button class="btn-link-sm" (click)="goToLoans()">Ver todos</button>
+        </div>
+        
+        <div class="loans-list">
+          <div class="loan-item" *ngFor="let loan of activeLoans">
+            <div class="loan-info">
+              <span class="loan-name">{{ loan.name }}</span>
+              <span class="loan-date">Devolución: {{ loan.returnDate }}</span>
+            </div>
+            <span class="loan-status-pill" [ngClass]="loan.status.toLowerCase()">
+              {{ loan.status }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notificaciones Timeline -->
+      <section class="notifications-sidebar-card">
+        <h3>Notificaciones</h3>
+        
+        <div class="notifications-timeline">
+          <div class="notification-item" *ngFor="let note of notifications">
+            <div class="note-icon-box" [ngClass]="note.type">
+              <lucide-icon [img]="note.type === 'success' ? CheckIcon : (note.type === 'warning' ? ClockIcon : InfoIcon)"></lucide-icon>
+            </div>
+            <div class="note-content">
+              <h4>{{ note.title }}</h4>
+              <p>{{ note.text }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
-  </section>
+
+  </div>
 
 </div>

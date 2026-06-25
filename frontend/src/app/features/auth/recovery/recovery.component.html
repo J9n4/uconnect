@@ -27,6 +27,10 @@
           </span>
         </div>
 
+        <div class="error-alert" *ngIf="errorMessage" style="color: red; margin-bottom: 15px; font-size: 14px; text-align: center;">
+          {{ errorMessage }}
+        </div>
+
         <button type="submit" class="btn-primary btn-block" [disabled]="isLoading">
           <span *ngIf="!isLoading">Enviar Enlace</span>
           <span *ngIf="isLoading">Enviando...</span>

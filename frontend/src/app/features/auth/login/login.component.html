@@ -60,5 +60,23 @@
       </div>
 
     </form>
+
+    <div class="demo-section">
+      <div class="demo-divider">
+        <span>O ingresa rápido como</span>
+      </div>
+      <div class="demo-buttons">
+        <button type="button" (click)="quickLogin('student')" class="btn-demo btn-student">
+          Estudiante
+        </button>
+        <button type="button" (click)="quickLogin('teacher')" class="btn-demo btn-teacher">
+          Docente
+        </button>
+        <button type="button" (click)="quickLogin('admin')" class="btn-demo btn-admin">
+          Admin
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>

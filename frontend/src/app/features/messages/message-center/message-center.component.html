@@ -14,11 +14,11 @@
       <div 
         class="chat-item" 
         *ngFor="let chat of chats" 
-        [class.active]="chat.active"
+        [class.active]="activeChat?.id === chat.id"
         (click)="selectChat(chat.id)">
         
         <div class="avatar">
-          <lucide-icon [img]="UserIcon"></lucide-icon>
+          <img [src]="chat.avatar" alt="Avatar" class="avatar-img">
         </div>
         
         <div class="chat-info">
@@ -34,12 +34,12 @@
   </aside>
 
   <!-- Columna Derecha: Hilo del Chat -->
-  <main class="chat-window">
+  <main class="chat-window" *ngIf="activeChat; else noActiveChat">
     
     <!-- Cabecera del Chat Activo -->
     <header class="chat-header-bar">
       <div class="avatar">
-        <lucide-icon [img]="UserIcon"></lucide-icon>
+        <img [src]="activeChat.avatar" alt="Avatar" class="avatar-img">
       </div>
       <div>
         <h3>{{ activeChat.name }}</h3>
@@ -49,15 +49,25 @@
 
     <!-- Área de Burbujas de Mensaje -->
     <div class="chat-messages">
-      <div 
-        class="message-bubble" 
-        *ngFor="let msg of activeChat.messages"
-        [ngClass]="msg.sender === 'me' ? 'sent' : 'received'">
-        <div class="bubble-content">
-          <p>{{ msg.text }}</p>
-          <span class="time">{{ msg.time }}</span>
+      <ng-container *ngFor="let msg of activeChat.messages">
+        <!-- Mensaje de Sistema -->
+        <div *ngIf="msg.sender === 'system'" class="system-message-container">
+          <div class="system-message-bubble">
+            <span>{{ msg.text }}</span>
+          </div>
         </div>
-      </div>
+
+        <!-- Burbujas de chat normales -->
+        <div 
+          *ngIf="msg.sender !== 'system'"
+          class="message-bubble" 
+          [ngClass]="msg.sender === 'me' ? 'sent' : 'received'">
+          <div class="bubble-content">
+            <p>{{ msg.text }}</p>
+            <span class="time">{{ msg.time }}</span>
+          </div>
+        </div>
+      </ng-container>
     </div>
 
     <!-- Input para Enviar -->
@@ -73,5 +83,16 @@
     </div>
 
   </main>
+
+  <!-- Template si no hay chat seleccionado -->
+  <ng-template #noActiveChat>
+    <main class="chat-window no-chat-selected">
+      <div class="no-chat-box">
+        <lucide-icon [img]="UserIcon" class="no-chat-icon"></lucide-icon>
+        <h3>Bandeja de Entrada</h3>
+        <p>Elige un contacto en la lista para ver su conversación.</p>
+      </div>
+    </main>
+  </ng-template>
 
 </div>

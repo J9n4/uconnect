@@ -2,63 +2,142 @@
 
   <header class="page-header">
     <div>
-      <h1>Mi Horario</h1>
-      <p>Semana del 14 al 18 de Octubre</p>
+      <h1>{{ isTeacher ? 'Agenda Docente - Horarios' : 'Mi Horario' }}</h1>
+      <p>{{ isTeacher ? 'Administra tus horarios de clases y atención a alumnos' : 'Semana del 14 al 18 de Octubre' }}</p>
     </div>
   </header>
 
-  <div class="schedule-grid-wrapper">
-    <table class="schedule-table">
-      <thead>
-        <tr>
-          <th class="time-col">Hora</th>
-          @for (day of weekDays; track day) {
-            <th>{{ day }}</th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (time of timeSlots; track time) {
-          <tr>
-            <td class="time-cell">{{ time }}</td>
-
-            @for (day of weekDays; track day) {
-              @if (shouldRenderDayCell(day, time)) {
-                @if (getClassForSlot(day, time); as classObj) {
-                  <td
-                    [attr.rowspan]="classObj.duration"
-                    class="class-cell-container"
-                    [class.is-appointment]="classObj.type === 'appointment'">
-                    <div class="class-card" [ngClass]="[classObj.type, 'dur-' + classObj.duration]">
-                      <h4>{{ classObj.name }}</h4>
-                      <div class="class-details">
-                        <div class="detail-row">
-                          <lucide-icon [img]="PinIcon"></lucide-icon>
-                          <span>{{ classObj.room }}</span>
-                        </div>
-                        @if (classObj.type !== 'appointment') {
-                          <div class="detail-row">
-                            <lucide-icon [img]="ClockIcon"></lucide-icon>
-                            <span>{{ classObj.duration }} hrs</span>
-                          </div>
-                        }
-                        @if (classObj.teacher) {
-                          <div class="detail-row">
-                            <lucide-icon [img]="UsersIcon"></lucide-icon>
-                            <span>{{ classObj.teacher }}</span>
-                          </div>
-                        }
-                      </div>
-                    </div>
-                  </td>
-                } @else {
-                  <td class="empty-cell"></td>
-                }
+  <div class="schedule-layout" [class.teacher-layout]="isTeacher">
+    
+    <!-- Sección de la tabla de horario -->
+    <div class="schedule-table-section">
+      <div class="schedule-grid-wrapper">
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th class="time-col">Hora</th>
+              @for (day of weekDays; track day) {
+                <th>{{ day }}</th>
               }
+            </tr>
+          </thead>
+          <tbody>
+            @for (time of timeSlots; track time) {
+              <tr>
+                <td class="time-cell">{{ time }}</td>
+
+                @for (day of weekDays; track day) {
+                  @if (shouldRenderDayCell(day, time)) {
+                    @if (getClassForSlot(day, time); as classObj) {
+                      <td
+                        [attr.rowspan]="classObj.duration"
+                        class="class-cell-container"
+                        [class.is-appointment]="classObj.type === 'appointment'">
+                        
+                        <div class="class-card" [ngClass]="[classObj.type, 'dur-' + classObj.duration]">
+                          
+                          <!-- Botón de eliminar (exclusivo para profesores sobre sus horas de atención) -->
+                          <button *ngIf="isTeacher && classObj.type === 'appointment'"
+                                  (click)="deleteOfficeHour(classObj.id)"
+                                  class="btn-delete-slot"
+                                  title="Eliminar Horario de Atención">
+                            <lucide-icon [img]="TrashIcon" class="icon-xs"></lucide-icon>
+                          </button>
+
+                          <h4>{{ classObj.name }}</h4>
+                          
+                          <div class="class-details">
+                            <div class="detail-row">
+                              <lucide-icon [img]="PinIcon"></lucide-icon>
+                              <span>{{ classObj.room }}</span>
+                            </div>
+                            
+                            @if (classObj.type !== 'appointment') {
+                              <div class="detail-row">
+                                <lucide-icon [img]="ClockIcon"></lucide-icon>
+                                <span>{{ classObj.duration }} hrs</span>
+                              </div>
+                            }
+                            
+                            @if (classObj.teacher) {
+                              <div class="detail-row">
+                                <lucide-icon [img]="UsersIcon"></lucide-icon>
+                                <span>{{ classObj.teacher }}</span>
+                              </div>
+                            }
+                            
+                            @if (classObj.modality) {
+                              <div class="detail-row">
+                                <span class="modality-tag" [ngClass]="classObj.modality.toLowerCase()">
+                                  {{ classObj.modality }}
+                                </span>
+                              </div>
+                            }
+                          </div>
+
+                        </div>
+                      </td>
+                    } @else {
+                      <td class="empty-cell"></td>
+                    }
+                  }
+                }
+              </tr>
             }
-          </tr>
-        }
-      </tbody>
-    </table>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Barra lateral para profesores para agregar horario de atención -->
+    <aside class="schedule-sidebar" *ngIf="isTeacher">
+      <div class="form-card">
+        <h3>Agregar Horario de Atención</h3>
+        
+        <form (ngSubmit)="addOfficeHour()">
+          <div class="form-group">
+            <label for="day">Día de la Semana</label>
+            <select id="day" name="day" [(ngModel)]="newSlot.day">
+              <option *ngFor="let d of weekDays" [value]="d">{{ d }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="startHour">Hora de Inicio</label>
+            <select id="startHour" name="startHour" [(ngModel)]="newSlot.startHour">
+              <option *ngFor="let h of timeSlots" [value]="h.split(':')[0]">{{ h }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="duration">Duración</label>
+            <select id="duration" name="duration" [(ngModel)]="newSlot.duration">
+              <option [value]="1">1 hora</option>
+              <option [value]="2">2 horas</option>
+              <option [value]="3">3 horas</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modality">Modalidad</label>
+            <select id="modality" name="modality" [(ngModel)]="newSlot.modality">
+              <option value="Presencial">Presencial</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="room">Ubicación / Sala / Link Teams</label>
+            <input type="text" id="room" name="room" [(ngModel)]="newSlot.room" placeholder="Ej: Laboratorio 3 o Enlace Teams">
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <lucide-icon [img]="PlusIcon" class="icon-sm"></lucide-icon> Añadir Horario
+          </button>
+        </form>
+      </div>
+    </aside>
+
   </div>
+
 </div>

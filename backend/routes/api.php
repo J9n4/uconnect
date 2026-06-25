@@ -25,6 +25,11 @@ use App\Http\Controllers\NotificacionController;
 | GET (listar y ver), POST (crear), PUT/PATCH (editar) y DELETE (borrar).
 */
 
+use App\Http\Controllers\AuthController;
+
+Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('reset-password', [AuthController::class, 'resetPassword']);
+
 Route::apiResource('usuarios', UsuarioController::class);
 Route::apiResource('profesores', ProfesorController::class);
 Route::apiResource('administradores', AdministradorController::class);

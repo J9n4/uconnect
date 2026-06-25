@@ -7,5 +7,5 @@ class Notificacion extends Model
     protected $table = 'Notificacion';
     protected $primaryKey = 'id_notificacion';
     public $timestamps = false;
-    protected $fillable = ['tipo', 'titulo', 'mensaje', 'fecha', 'leida'];
+    protected $fillable = ['id_usuario', 'tipo', 'titulo', 'mensaje', 'fecha', 'leida'];
 }

@@ -1,0 +1,201 @@
+<div class="admin-container">
+  <header class="welcome-banner">
+    <div>
+      <h1>Panel de Administración Uconnect</h1>
+      <p>Gestión global de recursos, usuarios y solicitudes de préstamos de laboratorios.</p>
+    </div>
+    <div class="role-badge">
+      <span>Administrador General</span>
+    </div>
+  </header>
+
+  <!-- Tarjetas de Estadísticas Globales -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon bg-blue">
+        <lucide-icon [img]="UsersIcon"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <h3>Usuarios Totales</h3>
+        <p class="stat-number">{{ stats.totalUsers }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-green">
+        <lucide-icon [img]="MonitorIcon"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <h3>Préstamos Activos</h3>
+        <p class="stat-number">{{ stats.activeLoans }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-yellow">
+        <lucide-icon [img]="ClockIcon"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <h3>Pendientes Aprobación</h3>
+        <p class="stat-number">{{ stats.pendingApprovals }}</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-purple">
+        <lucide-icon [img]="PackageIcon"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <h3>Equipos Registrados</h3>
+        <p class="stat-number">{{ stats.inventoryItems }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pestañas de Gestión -->
+  <div class="management-section">
+    <div class="tabs-header">
+      <div class="tabs">
+        <button [class.active]="activeTab === 'loans'" (click)="setTab('loans')">
+          <lucide-icon [img]="FileTextIcon" class="icon-sm"></lucide-icon> Solicitudes y Préstamos
+        </button>
+        <button [class.active]="activeTab === 'inventory'" (click)="setTab('inventory')">
+          <lucide-icon [img]="PackageIcon" class="icon-sm"></lucide-icon> Inventario de Equipos
+        </button>
+        <button [class.active]="activeTab === 'users'" (click)="setTab('users')">
+          <lucide-icon [img]="UsersIcon" class="icon-sm"></lucide-icon> Control de Usuarios
+        </button>
+      </div>
+      <button *ngIf="activeTab === 'inventory'" class="btn-primary" (click)="addEquipment()">
+        <lucide-icon [img]="PlusIcon" class="icon-sm"></lucide-icon> Agregar Equipo
+      </button>
+    </div>
+
+    <!-- Contenido de Solicitudes y Préstamos -->
+    <div class="tab-content" *ngIf="activeTab === 'loans'">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID Solicitud</th>
+              <th>Estudiante</th>
+              <th>Equipo Solicitado</th>
+              <th>Laboratorio</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let loan of loans">
+              <td><strong>{{ loan.id }}</strong></td>
+              <td>{{ loan.studentName }}</td>
+              <td>{{ loan.equipmentName }}</td>
+              <td>{{ loan.lab }}</td>
+              <td>{{ loan.date }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-pending': loan.status === 'Pendiente',
+                  'badge-approved': loan.status === 'Aprobado',
+                  'badge-returned': loan.status === 'Devuelto',
+                  'badge-rejected': loan.status === 'Rechazado'
+                }">{{ loan.status }}</span>
+              </td>
+              <td>
+                <div class="action-buttons" *ngIf="loan.status === 'Pendiente'">
+                  <button class="btn-success" (click)="approveLoan(loan)" title="Aprobar Solicitud">
+                    <lucide-icon [img]="CheckIcon" class="icon-sm"></lucide-icon> Aprobar
+                  </button>
+                  <button class="btn-danger" (click)="rejectLoan(loan)" title="Rechazar Solicitud">
+                    <lucide-icon [img]="XIcon" class="icon-sm"></lucide-icon> Rechazar
+                  </button>
+                </div>
+                <div class="action-buttons" *ngIf="loan.status === 'Aprobado'">
+                  <button class="btn-info" (click)="returnLoan(loan)" title="Marcar como Devuelto">
+                    Marcar Devuelto
+                  </button>
+                </div>
+                <span class="no-actions" *ngIf="loan.status === 'Devuelto' || loan.status === 'Rechazado'">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Contenido de Inventario -->
+    <div class="tab-content" *ngIf="activeTab === 'inventory'">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID Equipo</th>
+              <th>Nombre del Equipo</th>
+              <th>Ubicación / Laboratorio</th>
+              <th>Total</th>
+              <th>Disponible</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of inventory">
+              <td><strong>{{ item.id }}</strong></td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.lab }}</td>
+              <td>{{ item.total }}</td>
+              <td>
+                <span [class.text-danger]="item.available === 0" style="font-weight: 600;">
+                  {{ item.available }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="item.available > 0 ? 'badge-approved' : 'badge-rejected'">
+                  {{ item.available > 0 ? 'En Stock' : 'Agotado' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Contenido de Usuarios -->
+    <div class="tab-content" *ngIf="activeTab === 'users'">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID Usuario</th>
+              <th>Nombre Completo</th>
+              <th>Correo Institucional</th>
+              <th>Rol Actual</th>
+              <th>Cambiar Rol (Demo)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of usersList">
+              <td><strong>{{ user.id }}</strong></td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'badge-approved': user.role === 'ADMIN',
+                  'badge-pending': user.role === 'TEACHER',
+                  'badge-info': user.role === 'STUDENT'
+                }">{{ user.roleLabel }}</span>
+              </td>
+              <td>
+                <div class="role-selector-buttons">
+                  <button class="btn-role-tab" [class.active-role]="user.role === 'STUDENT'" (click)="changeUserRole(user, 'STUDENT')">Alumno</button>
+                  <button class="btn-role-tab" [class.active-role]="user.role === 'TEACHER'" (click)="changeUserRole(user, 'TEACHER')">Docente</button>
+                  <button class="btn-role-tab" [class.active-role]="user.role === 'ADMIN'" (click)="changeUserRole(user, 'ADMIN')">Admin</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

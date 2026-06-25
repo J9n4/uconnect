@@ -7,5 +7,9 @@ class Mensaje extends Model
     protected $table = 'Mensaje';
     protected $primaryKey = 'id_mensaje';
     public $timestamps = false;
-    protected $fillable = ['asunto', 'contenido', 'fecha_envio', 'leido'];
+    protected $fillable = ['id_emisor', 'id_receptor', 'asunto', 'contenido', 'fecha_envio', 'leido'];
+
+    protected $casts = [
+        'fecha_envio' => 'datetime',
+    ];
 }

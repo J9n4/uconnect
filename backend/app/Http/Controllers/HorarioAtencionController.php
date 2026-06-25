@@ -9,12 +9,14 @@ class HorarioAtencionController extends Controller
 {
     public function index()
     {
-        return response()->json(HorarioAtencion::all(), 200);
+        return response()->json(HorarioAtencion::with(['profesor.usuario', 'estudiante.usuario'])->get(), 200);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'id_profesor' => 'required|integer|exists:Profesor,id_profesor',
+            'id_estudiante' => 'nullable|integer|exists:Estudiante,id_estudiante',
             'dia_semana' => 'required|string|max:50',
             'hora_inicio' => 'required',
             'hora_fin' => 'required',
@@ -24,12 +26,12 @@ class HorarioAtencionController extends Controller
         ]);
 
         $horario = HorarioAtencion::create($validated);
-        return response()->json($horario, 201);
+        return response()->json($horario->load(['profesor.usuario', 'estudiante.usuario']), 201);
     }
 
     public function show($id)
     {
-        $horario = HorarioAtencion::find($id);
+        $horario = HorarioAtencion::with(['profesor.usuario', 'estudiante.usuario'])->find($id);
         if (!$horario) return response()->json(['message' => 'Horario no encontrado'], 404);
         return response()->json($horario, 200);
     }

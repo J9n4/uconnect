@@ -15,6 +15,8 @@ class AprobacionPrestamoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'id_prestamo' => 'required|integer|exists:Prestamo,id_prestamo',
+            'id_admin' => 'required|integer|exists:Administrador,id_administrador',
             'accion' => 'required|string|max:255',
             'comentarios' => 'nullable|string',
             'fecha_accion' => 'required|date',
