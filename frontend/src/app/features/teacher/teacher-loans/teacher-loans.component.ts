@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Monitor, Clock, FileText, Check, X, Calendar, Edit } from 'lucide-angular';
 import { ToastService } from '../../../core/services/toast.service';
 import { StudentDataService, EquipmentRequest, TutorAppointment } from '../../../core/services/student-data.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-teacher-loans',
@@ -15,6 +16,7 @@ import { StudentDataService, EquipmentRequest, TutorAppointment } from '../../..
 export class TeacherLoansComponent implements OnInit {
   public studentDataService = inject(StudentDataService);
   private toastService = inject(ToastService);
+  private authService = inject(AuthService);
 
   readonly MonitorIcon = Monitor;
   readonly ClockIcon = Clock;
@@ -44,14 +46,22 @@ export class TeacherLoansComponent implements OnInit {
   tutorAppointments: TutorAppointment[] = [];
 
   ngOnInit() {
+    const user = this.authService.getCurrentUser();
+    const idProfesor = user?.id_profesor ?? user?.id;
+
     // Sincronizar dinámicamente con el servicio global
     this.studentDataService.equipmentRequests$.subscribe(reqs => {
       this.equipmentRequests = reqs;
     });
 
     this.studentDataService.tutorAppointments$.subscribe(apts => {
-      // Filtrar tutorías dirigidas al Dr. Miguel Ángel Torres o generales
-      this.tutorAppointments = apts.filter(a => a.teacher === 'Dr. Miguel Ángel Torres');
+      // Filtrar tutorías del profesor logueado por id_profesor
+      this.tutorAppointments = apts.filter(a => {
+        if (!idProfesor) return true; // si no hay id, mostrar todos
+        // El campo 'teacher' en tutorAppointments contiene el nombre, pero también
+        // podemos comparar con el nombre del usuario logueado
+        return a.teacher.toLowerCase().includes(user?.name?.split(' ')[0]?.toLowerCase() || '');
+      });
     });
   }
 

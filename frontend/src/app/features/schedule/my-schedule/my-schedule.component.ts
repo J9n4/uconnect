@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, Calendar, Clock, MapPin, Users, Plus, Trash } from 'lucide-angular';
 import { StudentDataService, ClassSchedule } from '../../../core/services/student-data.service';
 import { AuthService, UserProfile } from '../../../core/services/auth.service';
@@ -19,6 +20,8 @@ export class MyScheduleComponent implements OnInit {
   private studentDataService = inject(StudentDataService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost:8000/api';
 
   readonly CalendarIcon = Calendar;
   readonly ClockIcon = Clock;
@@ -81,85 +84,79 @@ export class MyScheduleComponent implements OnInit {
   }
 
   loadTeacherSlots() {
-    if (typeof window === 'undefined') return;
+    const user = this.authService.getCurrentUser();
+    const idProfesor = user?.id_profesor ?? user?.id;
 
-    // Cargar clases fijas del profesor
+    // Clases fijas del profesor
     const teacherClasses: ClassSchedule[] = [
       { id: 't-cls-1', name: 'Clase de Programación', day: 'Miércoles', startHour: 14, duration: 2, room: 'Sala de Programación', type: 'theory' }
     ];
 
-    // Cargar horarios de atención personalizados
-    let officeHours: ClassSchedule[] = [];
-    const localSlotsStr = localStorage.getItem('uconnect_teacher_slots');
-
-    if (localSlotsStr) {
-      officeHours = JSON.parse(localSlotsStr);
-    } else {
-      // Valores por defecto para la demo inicial del profesor (coincide con dashboard mockup)
-      officeHours = [
-        { id: 'off-1', name: 'Atención de estudiantes', day: 'Miércoles', startHour: 9, duration: 2, room: 'Atención de estudiantes', type: 'appointment', modality: 'Presencial' }
-      ];
-      localStorage.setItem('uconnect_teacher_slots', JSON.stringify(officeHours));
-    }
-
-    this.scheduleItems = [...teacherClasses, ...officeHours];
+    // Cargar horarios de atención desde la BD
+    this.studentDataService.getAttentionHours().subscribe(horarios => {
+      const propios = horarios.filter((h: any) => h.id_profesor === idProfesor);
+      const officeHours: ClassSchedule[] = propios.map((h: any) => ({
+        id: h.id_horario,
+        name: 'Atención de estudiantes',
+        day: h.dia_semana,
+        startHour: parseInt(h.hora_inicio?.split(':')[0] || '8'),
+        duration: parseInt(h.hora_fin?.split(':')[0] || '9') - parseInt(h.hora_inicio?.split(':')[0] || '8'),
+        room: h.ubicacion || 'Sala de Tutorías',
+        type: 'appointment' as const,
+        modality: h.modalidad
+      }));
+      this.scheduleItems = [...teacherClasses, ...officeHours];
+    });
   }
 
   addOfficeHour() {
     if (!this.isTeacher) return;
+    const user = this.authService.getCurrentUser();
+    const idProfesor = user?.id_profesor ?? user?.id;
+    if (!idProfesor) {
+      this.toastService.show('No se encontró el ID del profesor.', 'error');
+      return;
+    }
 
     const startHourNum = Number(this.newSlot.startHour);
     const durationNum = Number(this.newSlot.duration);
 
-    // Validar conflictos de horario
     if (this.hasConflict(this.newSlot.day, startHourNum, durationNum)) {
       this.toastService.show('Ese horario ya está ocupado por otra clase o tutoría.', 'error');
       return;
     }
 
-    // Guardar horario
-    const localSlotsStr = localStorage.getItem('uconnect_teacher_slots');
-    let officeHours: ClassSchedule[] = localSlotsStr ? JSON.parse(localSlotsStr) : [];
-
-    const newOfficeHour: ClassSchedule = {
-      id: `off-${Date.now()}`,
-      name: 'Atención de estudiantes',
-      day: this.newSlot.day,
-      startHour: startHourNum,
-      duration: durationNum,
-      room: this.newSlot.room,
-      type: 'appointment',
-      modality: this.newSlot.modality
+    const endHour = startHourNum + durationNum;
+    const payload = {
+      id_profesor: idProfesor,
+      dia_semana: this.newSlot.day,
+      hora_inicio: `${startHourNum.toString().padStart(2, '0')}:00`,
+      hora_fin: `${endHour.toString().padStart(2, '0')}:00`,
+      modalidad: this.newSlot.modality,
+      ubicacion: this.newSlot.room,
+      estado: 'Disponible'
     };
 
-    officeHours.push(newOfficeHour);
-    localStorage.setItem('uconnect_teacher_slots', JSON.stringify(officeHours));
-
-    this.loadTeacherSlots();
-    this.toastService.show('¡Horario de atención añadido con éxito!', 'success');
-
-    // Resetear formulario con valores por defecto cómodos
-    this.newSlot = {
-      day: 'Lunes',
-      startHour: 9,
-      duration: 1,
-      modality: 'Presencial',
-      room: 'Sala de Tutorías'
-    };
+    this.http.post(`${this.apiUrl}/horarios-atencion`, payload).subscribe({
+      next: () => {
+        this.toastService.show('¡Horario de atención añadido con éxito!', 'success');
+        this.loadTeacherSlots();
+        this.newSlot = { day: 'Lunes', startHour: 9, duration: 1, modality: 'Presencial', room: 'Sala de Tutorías' };
+      },
+      error: () => this.toastService.show('Error al guardar el horario en la BD.', 'error')
+    });
   }
 
   deleteOfficeHour(id: string | number) {
     if (!this.isTeacher) return;
 
-    const localSlotsStr = localStorage.getItem('uconnect_teacher_slots');
-    if (!localSlotsStr) return;
-
-    let officeHours: ClassSchedule[] = JSON.parse(localSlotsStr);
-    officeHours = officeHours.filter(slot => slot.id !== id);
-    localStorage.setItem('uconnect_teacher_slots', JSON.stringify(officeHours));
-
-    this.loadTeacherSlots();
-    this.toastService.show('Horario de atención eliminado.', 'info');
+    this.http.delete(`${this.apiUrl}/horarios-atencion/${id}`).subscribe({
+      next: () => {
+        this.toastService.show('Horario de atención eliminado.', 'info');
+        this.loadTeacherSlots();
+      },
+      error: () => this.toastService.show('Error al eliminar el horario de la BD.', 'error')
+    });
   }
 
   private hasConflict(day: string, startHour: number, duration: number): boolean {

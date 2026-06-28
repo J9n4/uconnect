@@ -10,8 +10,50 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Mail\ResetPasswordMail;
 
+use App\Models\Estudiante;
+use App\Models\Profesor;
+use App\Models\Administrador;
+
 class AuthController extends Controller
 {
+    public function login(Request $request)
+    {
+        $request->validate([
+            'correo'     => 'required|email',
+            'contrasena' => 'required|string',
+        ]);
+
+        $usuario = Usuario::where('correo', $request->correo)->first();
+
+        if (!$usuario || !password_verify($request->contrasena, $usuario->contrasena)) {
+            return response()->json(['message' => 'Credenciales inválidas.'], 401);
+        }
+
+        // Construir datos extendidos según el rol
+        $extra = [];
+        if ($usuario->rol === 'STUDENT') {
+            $estudiante = Estudiante::find($usuario->id_usuario);
+            $extra = [
+                'matricula' => $estudiante?->matricula,
+                'carrera'   => $estudiante?->carrera,
+            ];
+        } elseif ($usuario->rol === 'TEACHER') {
+            $profesor = Profesor::find($usuario->id_usuario);
+            $extra = [
+                'departamento' => $profesor?->departamento,
+                'titulo'       => $profesor?->titulo,
+                'id_profesor'  => $profesor?->id_profesor,
+            ];
+        } elseif ($usuario->rol === 'ADMIN') {
+            $admin = Administrador::find($usuario->id_usuario);
+            $extra = [
+                'cargo' => $admin?->cargo,
+            ];
+        }
+
+        return response()->json(array_merge($usuario->toArray(), $extra), 200);
+    }
+
     public function forgotPassword(Request $request)
     {
         $request->validate(['correo' => 'required|email']);

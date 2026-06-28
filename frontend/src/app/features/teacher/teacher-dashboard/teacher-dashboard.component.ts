@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, MessageSquare, FileText, Users, Clock, ChevronRight, Calendar, BookOpen } from 'lucide-angular';
+import { AuthService } from '../../../core/services/auth.service';
+import { StudentDataService } from '../../../core/services/student-data.service';
 
 interface StudentMessage {
   id: number;
@@ -25,8 +27,10 @@ interface TodaySchedule {
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.css'
 })
-export class TeacherDashboardComponent {
+export class TeacherDashboardComponent implements OnInit {
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private studentDataService = inject(StudentDataService);
 
   readonly MessageIcon = MessageSquare;
   readonly FileTextIcon = FileText;
@@ -36,48 +40,80 @@ export class TeacherDashboardComponent {
   readonly CalendarIcon = Calendar;
   readonly ChevronIcon = ChevronRight;
 
-  teacherName = 'Dr. Miguel Ángel Torres';
-  specialty = 'Programación Orientada a Objetos';
-  currentDay = 'miércoles, 24 de junio';
+  teacherName = '';
+  specialty = '';
+  currentDay = '';
 
   stats = {
-    newMessages: 2,
-    pendingRequests: 2,
-    activeStudents: 24,
-    todayHours: '2h'
+    newMessages: 0,
+    pendingRequests: 0,
+    activeStudents: 0,
+    todayHours: '0h'
   };
 
-  messages: StudentMessage[] = [
-    {
-      id: 1,
-      studentName: 'Carlos Martínez',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100',
-      text: 'Profesor, tengo una duda sobre el proyecto final de POO.',
-      date: '9 jun, 09:15',
-      isUnread: true
-    },
-    {
-      id: 2,
-      studentName: 'Laura Gómez',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
-      text: 'Gracias por la retroalimentación, ya corregí el código.',
-      date: '8 jun, 16:30',
-      isUnread: true
-    },
-    {
-      id: 3,
-      studentName: 'Andrés Sánchez',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
-      text: '¿Podría revisar mi avance antes de la entrega del viernes?',
-      date: '8 jun, 11:45',
-      isUnread: false
-    }
-  ];
+  messages: StudentMessage[] = [];
+  todaySchedules: TodaySchedule[] = [];
 
-  todaySchedules: TodaySchedule[] = [
-    { time: '09:00 - 11:00', title: 'Atención de estudiantes', icon: 'clock' },
-    { time: '14:00 - 16:00', title: 'Clase de Programación', icon: 'book' }
-  ];
+  ngOnInit() {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.teacherName = user.name;
+      this.specialty = user.departamento || user.specialty || 'Docente';
+    }
+
+    // Fecha de hoy formateada
+    const now = new Date();
+    this.currentDay = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    // Mensajes recientes desde la BD
+    this.studentDataService.chats$.subscribe(chats => {
+      const allMessages: StudentMessage[] = [];
+      let unread = 0;
+      chats.forEach(chat => {
+        const last = chat.messages[chat.messages.length - 1];
+        if (last && last.sender === 'them') {
+          allMessages.push({
+            id: chat.id,
+            studentName: chat.name,
+            avatar: chat.avatar,
+            text: last.text,
+            date: last.time,
+            isUnread: chat.unread > 0
+          });
+          if (chat.unread > 0) unread++;
+        }
+      });
+      this.messages = allMessages.slice(0, 3);
+      this.stats.newMessages = unread;
+    });
+
+    // Tutorías pendientes desde la BD
+    this.studentDataService.tutorAppointments$.subscribe(apts => {
+      this.stats.pendingRequests = apts.filter(a => a.status === 'Pendiente').length;
+      this.stats.activeStudents = apts.length;
+    });
+
+    // Horarios de atención del profesor logueado
+    this.studentDataService.getAttentionHours().subscribe(horarios => {
+      const idProfesor = user?.id_profesor ?? user?.id;
+      const propios = horarios.filter(h => h.id_profesor === idProfesor);
+      const totalMinutes = propios.reduce((acc: number, h: any) => {
+        const start = parseInt(h.hora_inicio?.split(':')[0] || '0');
+        const end = parseInt(h.hora_fin?.split(':')[0] || '0');
+        return acc + (end - start);
+      }, 0);
+      this.stats.todayHours = `${totalMinutes}h`;
+
+      this.todaySchedules = propios.map((h: any) => ({
+        time: `${h.hora_inicio} - ${h.hora_fin}`,
+        title: h.estado === 'Disponible' ? 'Atención de estudiantes' : `Tutoría (${h.modalidad})`,
+        icon: 'clock' as 'clock'
+      }));
+
+      // Agregar clase fija del profesor
+      this.todaySchedules.push({ time: '14:00 - 16:00', title: 'Clase de Programación', icon: 'book' });
+    });
+  }
 
   goToMessages() {
     this.router.navigate(['/messages']);

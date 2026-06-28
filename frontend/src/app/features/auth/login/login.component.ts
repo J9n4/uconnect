@@ -37,8 +37,9 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
     const email = this.loginForm.value.email || '';
+    const password = this.loginForm.value.password || '';
 
-    this.authService.login(email).subscribe({
+    this.authService.login(email, password).subscribe({
       next: (success) => {
         this.isLoading = false;
         if (success) {
@@ -67,12 +68,13 @@ export class LoginComponent {
       email = 'admin@unach.cl';
     }
 
+    const quickPassword = 'password';
     this.loginForm.patchValue({
       email: email,
-      password: 'password123'
+      password: quickPassword
     });
 
-    this.authService.login(email).subscribe({
+    this.authService.login(email, quickPassword).subscribe({
       next: (success) => {
         this.isLoading = false;
         if (success) {
