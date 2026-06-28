@@ -25,7 +25,17 @@ class AuthController extends Controller
 
         $usuario = Usuario::where('correo', $request->correo)->first();
 
-        if (!$usuario || !password_verify($request->contrasena, $usuario->contrasena)) {
+        // Soportar contraseñas en texto plano (legacy) y bcrypt
+        $passwordOk = false;
+        if (strlen($usuario->contrasena) === 60 && str_starts_with($usuario->contrasena, '$2')) {
+            // Hash bcrypt → verificar con password_verify
+            $passwordOk = password_verify($request->contrasena, $usuario->contrasena);
+        } else {
+            // Texto plano (legacy) → comparación directa
+            $passwordOk = ($request->contrasena === $usuario->contrasena);
+        }
+
+        if (!$usuario || !$passwordOk) {
             return response()->json(['message' => 'Credenciales inválidas.'], 401);
         }
 
