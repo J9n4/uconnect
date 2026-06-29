@@ -42,20 +42,21 @@ class AuthController extends Controller
         // Construir datos extendidos según el rol
         $extra = [];
         if ($usuario->rol === 'STUDENT') {
-            $estudiante = Estudiante::find($usuario->id_usuario);
+            $estudiante = Estudiante::where('id_usuario', $usuario->id_usuario)->first();
             $extra = [
                 'matricula' => $estudiante?->matricula,
                 'carrera'   => $estudiante?->carrera,
+                'id_estudiante' => $estudiante?->id_estudiante,
             ];
         } elseif ($usuario->rol === 'TEACHER') {
-            $profesor = Profesor::find($usuario->id_usuario);
+            $profesor = Profesor::where('id_usuario', $usuario->id_usuario)->first();
             $extra = [
                 'departamento' => $profesor?->departamento,
                 'titulo'       => $profesor?->titulo,
                 'id_profesor'  => $profesor?->id_profesor,
             ];
         } elseif ($usuario->rol === 'ADMIN') {
-            $admin = Administrador::find($usuario->id_usuario);
+            $admin = Administrador::where('id_usuario', $usuario->id_usuario)->first();
             $extra = [
                 'cargo' => $admin?->cargo,
             ];

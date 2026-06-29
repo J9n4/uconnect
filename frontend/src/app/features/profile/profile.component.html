@@ -1,0 +1,131 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="avatar-circle">
+      <lucide-icon [img]="UserIcon" class="avatar-icon"></lucide-icon>
+    </div>
+    <h2>{{ currentUser?.name || 'Mi Perfil' }}</h2>
+    <p class="role-badge" [class.teacher-badge]="isTeacher">
+      {{ currentUser?.roleLabel || 'Usuario' }}
+    </p>
+  </div>
+
+  <div class="profile-content">
+    <!-- Información Personal -->
+    <div class="card">
+      <div class="card-header">
+        <h3><lucide-icon [img]="UserIcon" class="icon-sm"></lucide-icon> Información Personal</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Nombre Completo</label>
+          <input type="text" [(ngModel)]="profileForm.name" class="form-control">
+        </div>
+        
+        <div class="form-group" *ngIf="!isTeacher">
+          <label>Carrera</label>
+          <div class="input-with-icon">
+            <lucide-icon [img]="GraduationIcon" class="input-icon"></lucide-icon>
+            <input type="text" [(ngModel)]="profileForm.career" class="form-control pl-icon" readonly>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="isTeacher">
+          <label>Departamento / Especialidad</label>
+          <div class="input-with-icon">
+            <lucide-icon [img]="BookIcon" class="input-icon"></lucide-icon>
+            <input type="text" [(ngModel)]="profileForm.specialty" class="form-control pl-icon">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Biografía corta</label>
+          <textarea [(ngModel)]="profileForm.bio" class="form-control" rows="3" placeholder="Cuéntanos un poco sobre ti..."></textarea>
+        </div>
+
+        <button class="btn btn-primary mt-3" (click)="saveProfile()">
+          <lucide-icon [img]="CheckIcon" class="icon-sm mr-2"></lucide-icon> Guardar Cambios
+        </button>
+      </div>
+    </div>
+
+    <!-- Gestión de Horarios (Solo Profesor) -->
+    <div class="card" *ngIf="isTeacher">
+      <div class="card-header">
+        <h3><lucide-icon [img]="ClockIcon" class="icon-sm"></lucide-icon> Mis Horarios de Atención</h3>
+      </div>
+      <div class="card-body">
+        
+        <!-- Añadir Horario -->
+        <div class="add-slot-form bg-light p-3 rounded mb-4">
+          <h4 class="text-sm font-weight-bold mb-3">Añadir Nuevo Horario</h4>
+          <div class="grid-form">
+            <div class="form-group">
+              <label>Día</label>
+              <select [(ngModel)]="newSlot.day" class="form-control">
+                <option *ngFor="let day of weekDays" [value]="day">{{ day }}</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Hora Inicio</label>
+              <select [(ngModel)]="newSlot.startHour" class="form-control">
+                <option *ngFor="let time of timeSlots; let i = index" [value]="i + 8">{{ time }}</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Duración</label>
+              <select [(ngModel)]="newSlot.duration" class="form-control">
+                <option [value]="1">1 Hora</option>
+                <option [value]="2">2 Horas</option>
+                <option [value]="3">3 Horas</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Modalidad</label>
+              <select [(ngModel)]="newSlot.modality" class="form-control">
+                <option value="Presencial">Presencial</option>
+                <option value="Online">Online</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Ubicación / Enlace</label>
+              <input type="text" [(ngModel)]="newSlot.room" class="form-control" placeholder="Ej: Sala 3 o Link Meet">
+            </div>
+          </div>
+          
+          <button class="btn btn-outline-primary mt-3" (click)="addOfficeHour()">
+            <lucide-icon [img]="PlusIcon" class="icon-sm mr-2"></lucide-icon> Añadir Horario
+          </button>
+        </div>
+
+        <!-- Lista de Horarios -->
+        <div class="slots-list">
+          <h4 class="text-sm font-weight-bold mb-3">Horarios Actuales</h4>
+          <div *ngIf="officeHours.length === 0" class="text-muted text-center py-3">
+            No tienes horarios de atención configurados.
+          </div>
+          
+          <div class="slot-item" *ngFor="let slot of officeHours">
+            <div class="slot-info">
+              <div class="slot-day-time">
+                <span class="font-weight-bold">{{ slot.day }}</span>
+                <span class="text-muted ml-2">{{ slot.startHour }}:00 - {{ slot.startHour + slot.duration }}:00</span>
+              </div>
+              <div class="slot-details mt-1">
+                <span class="badge badge-info mr-2">{{ slot.modality }}</span>
+                <span class="text-sm text-muted">{{ slot.room }}</span>
+              </div>
+            </div>
+            <button class="btn btn-icon btn-danger-light" (click)="deleteOfficeHour(slot.id)" title="Eliminar horario">
+              <lucide-icon [img]="TrashIcon" class="icon-sm"></lucide-icon>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

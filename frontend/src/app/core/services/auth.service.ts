@@ -17,6 +17,7 @@ export interface UserProfile {
   matricula?: string;
   carrera?: string;
   id_profesor?: number;
+  id_estudiante?: number;
 }
 
 @Injectable({
@@ -66,13 +67,14 @@ export class AuthService {
                   (normalizedRole === 'TEACHER' ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150' :
                    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'),
           specialty: found.departamento || found.carrera || (found.rol === 'ADMIN' ? 'TI & Servicios' : 'Ingeniería Informática'),
-          biography: undefined,
+          biography: found.biography,
           departamento: found.departamento,
           titulo: found.titulo,
           cargo: found.cargo,
           matricula: found.matricula,
           carrera: found.carrera,
           id_profesor: found.id_profesor,
+          id_estudiante: found.id_estudiante
         };
 
         localStorage.setItem('uconnect_user', JSON.stringify(profile));

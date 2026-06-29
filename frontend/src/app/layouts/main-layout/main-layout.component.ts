@@ -64,7 +64,7 @@ export class MainLayoutComponent implements OnInit {
         { label: 'Mensajes', route: '/messages', icon: MessageSquare },
         { label: 'Horarios', route: '/schedule', icon: Clock },
         { label: 'Admin Préstamos', route: '/teacher/loans', icon: FileText },
-        { label: 'Mi Perfil', route: '/teacher/dashboard', icon: User }
+        { label: 'Mi Perfil', route: '/profile', icon: User }
       ];
     } else if (this.currentUser.role === 'ADMIN') {
       this.navItems = [
@@ -83,6 +83,7 @@ export class MainLayoutComponent implements OnInit {
     if (url.includes('reservations')) return 'Reservas';
     if (url.includes('my-requests')) return 'Mis Solicitudes';
     if (url.includes('schedule')) return 'Horarios';
+    if (url.includes('profile')) return 'Mi Perfil';
     if (url.includes('loans')) return 'Admin Préstamos';
     return 'Uconnect';
   }

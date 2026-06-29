@@ -60,15 +60,16 @@ export class LoginComponent {
     this.errorMessage = '';
     
     let email = '';
+    let quickPassword = 'password';
     if (role === 'student') {
-      email = 'juan@alumno.unach.cl';
+      email = 'alumno1@alumno.unach.cl';
+      quickPassword = '97582635';
     } else if (role === 'teacher') {
       email = 'miguel@profesor.unach.cl';
     } else if (role === 'admin') {
       email = 'admin@unach.cl';
     }
 
-    const quickPassword = 'password';
     this.loginForm.patchValue({
       email: email,
       password: quickPassword

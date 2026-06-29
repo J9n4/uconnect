@@ -8,7 +8,7 @@ import { MyScheduleComponent } from './features/schedule/my-schedule/my-schedule
 import { MyRequestsComponent } from './features/reservations/my-requests/my-requests.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
 import { TeacherLoansComponent } from './features/teacher/teacher-loans/teacher-loans.component';
-
+import { ProfileComponent } from './features/profile/profile.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
@@ -27,6 +27,7 @@ export const routes: Routes = [
       { path: 'reservations', component: ReservationCenterComponent },
       { path: 'schedule', component: MyScheduleComponent },
       { path: 'my-requests', component: MyRequestsComponent },
+      { path: 'profile', component: ProfileComponent },
     ]
   },
 

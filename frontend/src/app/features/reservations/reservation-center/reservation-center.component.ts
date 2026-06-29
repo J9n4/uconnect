@@ -1,7 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { LucideAngularModule, Monitor, Users, Calendar, Clock, CheckCircle } from 'lucide-angular';
+import { LucideAngularModule, Monitor, Users, Calendar, Clock, CheckCircle, Search } from 'lucide-angular';
+import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 import { StudentDataService } from '../../../core/services/student-data.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -9,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-reservation-center',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, FormsModule],
   templateUrl: './reservation-center.component.html',
   styleUrl: './reservation-center.component.css'
 })
@@ -24,11 +25,22 @@ export class ReservationCenterComponent implements OnInit {
   readonly CalendarIcon = Calendar;
   readonly ClockIcon = Clock;
   readonly CheckIcon = CheckCircle;
+  readonly SearchIcon = Search;
 
   activeTab: 'labs' | 'tutors' = 'labs';
 
   labEquipments: any[] = [];
+  searchQuery: string = '';
   teachers: any[] = [];
+
+  get filteredEquipments() {
+    if (!this.searchQuery) return this.labEquipments;
+    const query = this.searchQuery.toLowerCase();
+    return this.labEquipments.filter(eq => 
+      eq.name.toLowerCase().includes(query) || 
+      eq.lab.toLowerCase().includes(query)
+    );
+  }
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -115,7 +127,9 @@ export class ReservationCenterComponent implements OnInit {
       return;
     }
 
-    this.studentDataService.scheduleAppointment(hourBlock.id, user.id).subscribe({
+    const studentId = user.id_estudiante || user.id;
+
+    this.studentDataService.scheduleAppointment(hourBlock.id, studentId).subscribe({
       next: () => {
         this.toastService.show(`¡Cita agendada con éxito con ${hourBlock.name}!`, 'success');
         this.loadData();
