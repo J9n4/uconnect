@@ -6,7 +6,7 @@
       <p>Administra los préstamos de equipos y solicitudes de tutoría académica.</p>
     </div>
     <div class="role-badge">
-      <span>Gestor Docente</span>
+      <button class="btn-primary" (click)="openAddLoan()">Gestor Docente (Añadir Préstamo)</button>
     </div>
   </header>
 
@@ -22,8 +22,16 @@
 
   <!-- PESTAÑA: PRÉSTAMOS DE EQUIPOS -->
   <div class="loans-card" *ngIf="activeTab === 'loans'">
-    <div class="card-header">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
       <h2>Listado de Préstamos de Laboratorio</h2>
+      <select [(ngModel)]="statusFilter" class="form-control" style="width: 200px; margin-bottom: 0;">
+        <option value="Todos">Todos los Estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Aprobado">Aprobado</option>
+        <option value="Entregado">Entregado</option>
+        <option value="Devuelto">Devuelto</option>
+        <option value="Rechazado">Rechazado</option>
+      </select>
     </div>
     
     <div class="table-responsive">
@@ -40,7 +48,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let loan of equipmentRequests">
+          <tr *ngFor="let loan of filteredLoans">
             <td><strong>{{ loan.id }}</strong></td>
             <td>{{ loan.studentName || 'Estudiante Uconnect' }}</td>
             <td>{{ loan.name }}</td>
@@ -206,7 +214,7 @@
 
 <!-- Modal Editar Préstamo -->
 <div class="modal-overlay" *ngIf="showLoanModal">
-  <div class="modal-content">
+  <div class="modal-card">
     <div class="modal-header">
       <h2>Editar Préstamo</h2>
       <button class="btn-close" (click)="closeLoanModal()">
@@ -234,6 +242,41 @@
     <div class="modal-footer">
       <button class="btn-secondary" (click)="closeLoanModal()">Cancelar</button>
       <button class="btn-primary" (click)="saveLoan()">Guardar Cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Añadir Préstamo -->
+<div class="modal-overlay" *ngIf="showAddLoanModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Añadir Préstamo Manual</h2>
+      <button class="btn-close" (click)="closeAddLoan()">
+        <lucide-icon [img]="XIcon"></lucide-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label>Equipo</label>
+        <select [(ngModel)]="newLoanForm.equipmentId" class="form-control">
+          <option value="">Seleccione un equipo</option>
+          <option *ngFor="let eq of equipmentsList" [value]="eq.dbId || eq.id_equipo">{{ eq.name || eq.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label>Estudiante</label>
+        <select [(ngModel)]="newLoanForm.studentId" class="form-control">
+          <option value="">Seleccione un estudiante</option>
+          <option *ngFor="let st of studentsList" [value]="st.id_usuario">{{ st.nombre }} {{ st.apellido }}</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeAddLoan()">Cancelar</button>
+      <button class="btn-primary" (click)="saveNewLoan()">Guardar Préstamo</button>
     </div>
   </div>
 </div>

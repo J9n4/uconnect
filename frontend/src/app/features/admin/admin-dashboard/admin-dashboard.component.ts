@@ -99,6 +99,15 @@ export class AdminDashboardComponent implements OnInit {
   };
 
   loans: AdminLoan[] = [];
+  statusFilter = 'Todos';
+
+  get filteredLoans() {
+    if (this.statusFilter === 'Todos') {
+      return this.loans;
+    }
+    return this.loans.filter(loan => loan.status === this.statusFilter);
+  }
+
   inventory: EquipmentInventory[] = [];
   usersList: AdminUser[] = [];
   professorsList: AdminProfesor[] = [];

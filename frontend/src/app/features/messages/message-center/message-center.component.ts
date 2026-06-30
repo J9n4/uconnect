@@ -34,12 +34,12 @@ export class MessageCenterComponent implements OnInit {
 
     this.studentDataService.chats$.subscribe(allChats => {
       // Filtrar chats según el rol
-      if (this.currentUserRole === 'TEACHER') {
-        // Profesores ven los chats de los alumnos
-        this.chats = allChats.filter(c => c.role === 'Estudiante');
-      } else {
+      if (this.currentUserRole === 'STUDENT') {
         // Alumnos ven los chats de los profesores/administradores
         this.chats = allChats.filter(c => c.role !== 'Estudiante');
+      } else {
+        // Profesores y Administradores ven a todos
+        this.chats = allChats;
       }
 
       // Sincronizar el chat activo si hay uno seleccionado

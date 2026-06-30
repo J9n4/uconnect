@@ -89,6 +89,16 @@
 
     <!-- Contenido de Solicitudes y Préstamos -->
     <div class="tab-content" *ngIf="activeTab === 'loans'">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+        <select [(ngModel)]="statusFilter" class="form-control" style="width: 250px;">
+          <option value="Todos">Todos los Estados</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Aprobado">Aprobado</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Devuelto">Devuelto</option>
+          <option value="Rechazado">Rechazado</option>
+        </select>
+      </div>
       <div class="table-responsive">
         <table class="admin-table">
           <thead>
@@ -103,7 +113,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let loan of loans">
+            <tr *ngFor="let loan of filteredLoans">
               <td><strong>{{ loan.id }}</strong></td>
               <td>{{ loan.studentName }}</td>
               <td>{{ loan.equipmentName }}</td>

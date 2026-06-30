@@ -48,7 +48,9 @@ export class TeacherDashboardComponent implements OnInit {
     newMessages: 0,
     pendingRequests: 0,
     activeStudents: 0,
-    todayHours: '0h'
+    todayHours: '0h',
+    pendingEq: 0,
+    pendingTutor: 0
   };
 
   messages: StudentMessage[] = [];
@@ -87,31 +89,51 @@ export class TeacherDashboardComponent implements OnInit {
       this.stats.newMessages = unread;
     });
 
+    // Préstamos pendientes desde la BD
+    this.studentDataService.equipmentRequests$.subscribe(reqs => {
+      this.stats.pendingEq = reqs.filter(r => r.status === 'Pendiente').length;
+      this.stats.pendingRequests = this.stats.pendingEq + this.stats.pendingTutor;
+    });
+
     // Tutorías pendientes desde la BD
     this.studentDataService.tutorAppointments$.subscribe(apts => {
-      this.stats.pendingRequests = apts.filter(a => a.status === 'Pendiente').length;
-      this.stats.activeStudents = apts.length;
+      const myApts = apts.filter(a => {
+        if (!user?.name) return true;
+        return a.teacher.toLowerCase().includes(user.name.split(' ')[0].toLowerCase());
+      });
+      this.stats.pendingTutor = myApts.filter(a => a.status === 'Pendiente').length;
+      this.stats.pendingRequests = this.stats.pendingEq + this.stats.pendingTutor;
+      
+      // Estudiantes activos (Tutorías agendadas)
+      this.stats.activeStudents = myApts.length;
     });
 
     // Horarios de atención del profesor logueado
     this.studentDataService.getAttentionHours().subscribe(horarios => {
-      const idProfesor = user?.id_profesor ?? user?.id;
-      const propios = horarios.filter(h => h.id_profesor === idProfesor);
-      const totalMinutes = propios.reduce((acc: number, h: any) => {
+      const idProfesor = Number(user?.id_profesor ?? user?.id);
+      // Asegurar que comparamos como números
+      const propios = horarios.filter(h => Number(h.id_profesor) === idProfesor || Number(h.profesor?.id_usuario) === idProfesor);
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      const propiosToday = propios.filter(h => h.dia_semana && h.dia_semana.startsWith(todayStr));
+
+      const totalMinutes = propiosToday.reduce((acc: number, h: any) => {
         const start = parseInt(h.hora_inicio?.split(':')[0] || '0');
         const end = parseInt(h.hora_fin?.split(':')[0] || '0');
         return acc + (end - start);
       }, 0);
       this.stats.todayHours = `${totalMinutes}h`;
 
-      this.todaySchedules = propios.map((h: any) => ({
-        time: `${h.hora_inicio} - ${h.hora_fin}`,
+      this.todaySchedules = propiosToday.map((h: any) => ({
+        time: `${h.hora_inicio?.substring(0,5)} - ${h.hora_fin?.substring(0,5)}`,
         title: h.estado === 'Disponible' ? 'Atención de estudiantes' : `Tutoría (${h.modalidad})`,
         icon: 'clock' as 'clock'
       }));
 
-      // Agregar clase fija del profesor
-      this.todaySchedules.push({ time: '14:00 - 16:00', title: 'Clase de Programación', icon: 'book' });
+      if (this.todaySchedules.length === 0) {
+        // Agregar clase fija solo como relleno si no hay horarios de tutoría hoy
+        this.todaySchedules.push({ time: '14:00 - 16:00', title: 'Clases de Asignatura', icon: 'book' });
+      }
     });
   }
 

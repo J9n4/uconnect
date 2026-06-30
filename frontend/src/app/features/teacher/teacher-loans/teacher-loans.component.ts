@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Monitor, Clock, FileText, Check, X, Calendar, Edit, Trash2 } from 'lucide-angular';
 import { ToastService } from '../../../core/services/toast.service';
@@ -17,6 +18,7 @@ export class TeacherLoansComponent implements OnInit {
   public studentDataService = inject(StudentDataService);
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
+  private http = inject(HttpClient);
 
   readonly MonitorIcon = Monitor;
   readonly ClockIcon = Clock;
@@ -43,8 +45,16 @@ export class TeacherLoansComponent implements OnInit {
   weekDays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
   timeSlots = Array.from({ length: 11 }, (_, i) => `${(i + 8).toString().padStart(2, '0')}:00`);
 
+  statusFilter = 'Todos';
   equipmentRequests: EquipmentRequest[] = [];
   tutorAppointments: TutorAppointment[] = [];
+
+  get filteredLoans() {
+    if (this.statusFilter === 'Todos') {
+      return this.equipmentRequests;
+    }
+    return this.equipmentRequests.filter(loan => loan.status === this.statusFilter);
+  }
 
   ngOnInit() {
     const user = this.authService.getCurrentUser();
@@ -58,11 +68,20 @@ export class TeacherLoansComponent implements OnInit {
     this.studentDataService.tutorAppointments$.subscribe(apts => {
       // Filtrar tutorías del profesor logueado por id_profesor
       this.tutorAppointments = apts.filter(a => {
-        if (!idProfesor) return true; // si no hay id, mostrar todos
-        // El campo 'teacher' en tutorAppointments contiene el nombre, pero también
-        // podemos comparar con el nombre del usuario logueado
+        if (!idProfesor) return true;
         return a.teacher.toLowerCase().includes(user?.name?.split(' ')[0]?.toLowerCase() || '');
       });
+    });
+
+    this.loadEquipmentsAndStudents();
+  }
+
+  loadEquipmentsAndStudents() {
+    this.studentDataService.getEquipments().subscribe(eqs => {
+      this.equipmentsList = eqs;
+    });
+    this.http.get<any[]>('http://localhost:8000/api/usuarios?rol=ESTUDIANTE').subscribe(users => {
+      this.studentsList = users;
     });
   }
 
@@ -173,6 +192,32 @@ export class TeacherLoansComponent implements OnInit {
       );
       
       this.closeReschedule();
+    }
+  }
+
+  showAddLoanModal = false;
+  newLoanForm = { equipmentId: '', studentId: '' };
+  equipmentsList: any[] = [];
+  studentsList: any[] = [];
+
+  openAddLoan() {
+    this.showAddLoanModal = true;
+    this.newLoanForm = { equipmentId: '', studentId: '' };
+  }
+
+  closeAddLoan() {
+    this.showAddLoanModal = false;
+  }
+
+  saveNewLoan() {
+    if (this.newLoanForm.equipmentId && this.newLoanForm.studentId) {
+      this.studentDataService.requestEquipment(
+        Number(this.newLoanForm.equipmentId),
+        Number(this.newLoanForm.studentId)
+      ).subscribe(() => {
+        this.toastService.show('Préstamo creado exitosamente', 'success');
+        this.closeAddLoan();
+      });
     }
   }
 }

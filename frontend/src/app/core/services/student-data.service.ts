@@ -112,8 +112,8 @@ export class StudentDataService {
     let rolesQuery = '';
     if (user.role === 'STUDENT') {
       rolesQuery = '?roles=TEACHER,PROFESOR,DOCENTE,ADMIN,ADMINISTRADOR';
-    } else if (user.role === 'TEACHER') {
-      rolesQuery = '?roles=STUDENT,ESTUDIANTE,USUARIO';
+    } else {
+      rolesQuery = '';
     }
 
     forkJoin({
@@ -128,9 +128,7 @@ export class StudentDataService {
           const uRole = this.normalizeRole(u.rol);
           if (user.role === 'STUDENT' && uRole !== 'STUDENT') {
             chatsMap.set(u.id_usuario, this.createEmptyChat(u));
-          } else if (user.role === 'TEACHER' && uRole === 'STUDENT') {
-            chatsMap.set(u.id_usuario, this.createEmptyChat(u));
-          } else if (user.role === 'ADMIN') {
+          } else if (user.role === 'TEACHER' || user.role === 'ADMIN') {
             chatsMap.set(u.id_usuario, this.createEmptyChat(u));
           }
         });
@@ -142,6 +140,7 @@ export class StudentDataService {
           if (!isSender && !isReceiver) return; 
 
           const otherUserId = isSender ? m.id_receptor : m.id_emisor;
+          if (otherUserId === user.id) return; // Ignore messages to self
           
           if (!chatsMap.has(otherUserId)) {
             const otherUser = usuarios.find(u => u.id_usuario === otherUserId);
