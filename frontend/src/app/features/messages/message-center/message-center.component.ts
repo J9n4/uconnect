@@ -25,8 +25,10 @@ export class MessageCenterComponent implements OnInit {
   newMessage = '';
   
   // Lista de chats filtrada para la vista activa
+  allChatsList: Chat[] = [];
   chats: Chat[] = [];
   activeChat: Chat | null = null;
+  searchTerm = '';
 
   ngOnInit() {
     const currentUser = this.authService.getCurrentUser();
@@ -36,11 +38,12 @@ export class MessageCenterComponent implements OnInit {
       // Filtrar chats según el rol
       if (this.currentUserRole === 'STUDENT') {
         // Alumnos ven los chats de los profesores/administradores
-        this.chats = allChats.filter(c => c.role !== 'Estudiante');
+        this.allChatsList = allChats.filter(c => c.role !== 'Estudiante');
       } else {
         // Profesores y Administradores ven a todos
-        this.chats = allChats;
+        this.allChatsList = allChats;
       }
+      this.filterChats();
 
       // Sincronizar el chat activo si hay uno seleccionado
       if (this.activeChat) {
@@ -68,6 +71,17 @@ export class MessageCenterComponent implements OnInit {
     if (selected) {
       this.activeChat = selected;
       selected.unread = 0; // Marcar como leídos
+    }
+  }
+
+  filterChats() {
+    if (!this.searchTerm.trim()) {
+      this.chats = [...this.allChatsList];
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.chats = this.allChatsList.filter(c => 
+        c.name.toLowerCase().includes(term) || c.role.toLowerCase().includes(term)
+      );
     }
   }
 }

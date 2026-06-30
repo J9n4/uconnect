@@ -158,13 +158,23 @@ export class StudentDataService {
             });
             chat.lastMessage = m.contenido;
             // Contar mensajes no leídos recibidos por el usuario actual
-            if (!isSender && !m.leido) {
+            if (!isSender && (m.leido === false || m.leido === 0 || m.leido === '0' || !m.leido)) {
               chat.unread += 1;
             }
           }
         });
 
-        this.chatsSubject.next(Array.from(chatsMap.values()));
+        const finalChats = Array.from(chatsMap.values()).sort((a, b) => {
+          if (b.unread !== a.unread) {
+            return b.unread - a.unread; // Unread first
+          }
+          // If both have unread=0 or same unread, sort by last message existence
+          if (a.messages.length && !b.messages.length) return -1;
+          if (!a.messages.length && b.messages.length) return 1;
+          return 0;
+        });
+
+        this.chatsSubject.next(finalChats);
       }
     });
   }
@@ -178,7 +188,16 @@ export class StudentDataService {
   chats$ = this.chatsSubject.asObservable();
 
   constructor() {
-    this.loadInitialData();
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.loadInitialData();
+      } else {
+        // Limpiar datos si se cierra sesión
+        this.equipmentRequestsSubject.next([]);
+        this.tutorAppointmentsSubject.next([]);
+        this.chatsSubject.next([]);
+      }
+    });
   }
 
   loadInitialData() {

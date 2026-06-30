@@ -6,7 +6,7 @@
       <h2>Mensajes</h2>
       <div class="search-bar">
         <lucide-icon [img]="SearchIcon" class="icon-sm"></lucide-icon>
-        <input type="text" placeholder="Buscar contacto...">
+        <input type="text" placeholder="Buscar contacto..." [(ngModel)]="searchTerm" (input)="filterChats()">
       </div>
     </div>
 
