@@ -3,7 +3,13 @@
   <!-- Columna Izquierda: Lista de Chats -->
   <aside class="chat-sidebar">
     <div class="sidebar-header">
-      <h2>Mensajes</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="margin: 0;">Mensajes</h2>
+        <button class="btn-new-chat-primary" (click)="openNewChatModal()" title="Nuevo Chat">
+          <lucide-icon [img]="PlusIcon" class="icon-sm"></lucide-icon>
+          <span>Nuevo</span>
+        </button>
+      </div>
       <div class="search-bar">
         <lucide-icon [img]="SearchIcon" class="icon-sm"></lucide-icon>
         <input type="text" placeholder="Buscar contacto..." [(ngModel)]="searchTerm" (input)="filterChats()">
@@ -24,7 +30,12 @@
         <div class="chat-info">
           <div class="chat-header">
             <h4>{{ chat.name }}</h4>
-            <span class="badge" *ngIf="chat.unread > 0">{{ chat.unread }}</span>
+            <div class="chat-actions">
+              <span class="badge" *ngIf="chat.unread > 0">{{ chat.unread }}</span>
+              <button class="btn-hide-chat" (click)="hideChat($event, chat.id)" title="Ocultar chat">
+                <lucide-icon [img]="XIcon" class="icon-xs"></lucide-icon>
+              </button>
+            </div>
           </div>
           <p class="role-text">{{ chat.role }}</p>
           <p class="last-message">{{ chat.lastMessage }}</p>
@@ -90,9 +101,41 @@
       <div class="no-chat-box">
         <lucide-icon [img]="UserIcon" class="no-chat-icon"></lucide-icon>
         <h3>Bandeja de Entrada</h3>
-        <p>Elige un contacto en la lista para ver su conversación.</p>
+        <p>Elige un contacto en la lista o crea un nuevo chat para ver la conversación.</p>
       </div>
     </main>
   </ng-template>
 
+</div>
+
+<!-- Modal Nuevo Chat -->
+<div class="modal-overlay" *ngIf="showNewChatModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Nuevo Chat</h3>
+      <button class="btn-icon" (click)="closeNewChatModal()">
+        <lucide-icon [img]="XIcon" class="icon-sm"></lucide-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="search-bar" style="margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 20px; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <lucide-icon [img]="SearchIcon" class="icon-sm"></lucide-icon>
+        <input type="text" placeholder="Buscar usuario por nombre o rol..." [(ngModel)]="newChatSearch" (input)="filterNewContacts()" style="border: none; outline: none; width: 100%; background: transparent;">
+      </div>
+      <div class="contacts-list">
+        <div class="contact-item" *ngFor="let contact of filteredContacts" (click)="startNewChat(contact)">
+          <div class="avatar">
+            <img [src]="contact.avatar" alt="Avatar" class="avatar-img">
+          </div>
+          <div class="contact-info">
+            <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-color);">{{ contact.name }}</h4>
+            <span class="role-text" style="font-size: 0.75rem; color: var(--color-accent); font-weight: 500;">{{ contact.role }}</span>
+          </div>
+        </div>
+        <div *ngIf="filteredContacts.length === 0" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          No se encontraron contactos.
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Send, User } from 'lucide-angular';
+import { LucideAngularModule, Search, Send, User, Plus, X } from 'lucide-angular';
 import { StudentDataService, Chat } from '../../../core/services/student-data.service';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -20,15 +20,24 @@ export class MessageCenterComponent implements OnInit {
   readonly SearchIcon = Search;
   readonly SendIcon = Send;
   readonly UserIcon = User;
+  readonly PlusIcon = Plus;
+  readonly XIcon = X;
 
   currentUserRole = 'STUDENT';
   newMessage = '';
   
   // Lista de chats filtrada para la vista activa
-  allChatsList: Chat[] = [];
+  allChatsList: Chat[] = []; // Only those with messages > 0
+  allSystemContacts: Chat[] = []; // All available contacts (with or without messages)
   chats: Chat[] = [];
   activeChat: Chat | null = null;
   searchTerm = '';
+  hiddenChats = new Set<number>();
+
+  // Modal logic
+  showNewChatModal = false;
+  newChatSearch = '';
+  filteredContacts: Chat[] = [];
 
   ngOnInit() {
     const currentUser = this.authService.getCurrentUser();
@@ -36,13 +45,16 @@ export class MessageCenterComponent implements OnInit {
 
     this.studentDataService.chats$.subscribe(allChats => {
       // Filtrar chats según el rol
+      let contacts = [];
       if (this.currentUserRole === 'STUDENT') {
         // Alumnos ven los chats de los profesores/administradores
-        this.allChatsList = allChats.filter(c => c.role !== 'Estudiante');
+        contacts = allChats.filter(c => c.role !== 'Estudiante');
       } else {
         // Profesores y Administradores ven a todos
-        this.allChatsList = allChats;
+        contacts = allChats;
       }
+      this.allSystemContacts = contacts;
+      this.allChatsList = contacts.filter(c => c.messages && c.messages.length > 0);
       this.filterChats();
 
       // Sincronizar el chat activo si hay uno seleccionado
@@ -75,13 +87,63 @@ export class MessageCenterComponent implements OnInit {
   }
 
   filterChats() {
+    let base = this.allChatsList.filter(c => !this.hiddenChats.has(c.id));
     if (!this.searchTerm.trim()) {
-      this.chats = [...this.allChatsList];
+      this.chats = [...base];
     } else {
       const term = this.searchTerm.toLowerCase();
-      this.chats = this.allChatsList.filter(c => 
+      this.chats = base.filter(c => 
         c.name.toLowerCase().includes(term) || c.role.toLowerCase().includes(term)
       );
     }
+  }
+
+  hideChat(event: Event, chatId: number) {
+    event.stopPropagation();
+    this.hiddenChats.add(chatId);
+    if (this.activeChat?.id === chatId) {
+      this.activeChat = null;
+    }
+    this.filterChats();
+  }
+
+  // --- NEW CHAT MODAL ---
+  openNewChatModal() {
+    this.showNewChatModal = true;
+    this.newChatSearch = '';
+    this.filterNewContacts();
+  }
+
+  closeNewChatModal() {
+    this.showNewChatModal = false;
+  }
+
+  filterNewContacts() {
+    if (!this.newChatSearch.trim()) {
+      this.filteredContacts = [...this.allSystemContacts];
+    } else {
+      const term = this.newChatSearch.toLowerCase();
+      this.filteredContacts = this.allSystemContacts.filter(c => 
+        c.name.toLowerCase().includes(term) || c.role.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  startNewChat(contact: Chat) {
+    this.closeNewChatModal();
+    
+    // Si estaba oculto, lo volvemos a mostrar
+    if (this.hiddenChats.has(contact.id)) {
+      this.hiddenChats.delete(contact.id);
+    }
+
+    // Check if the chat is already in our history
+    if (!this.allChatsList.find(c => c.id === contact.id)) {
+       // Temporarily add it to the active list so we can send a message
+       this.allChatsList.unshift(contact);
+    }
+    
+    this.filterChats();
+    this.selectChat(contact.id);
   }
 }
