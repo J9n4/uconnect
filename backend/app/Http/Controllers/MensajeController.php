@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mensaje;
+use App\Models\ActivityLog;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class MensajeController extends Controller
@@ -29,6 +31,18 @@ class MensajeController extends Controller
         ]);
 
         $mensaje = Mensaje::create($validated);
+
+        // Log de actividad
+        $emisor = Usuario::find($validated['id_emisor']);
+        $receptor = Usuario::find($validated['id_receptor']);
+        ActivityLog::registrar(
+            'MENSAJE',
+            "Mensaje enviado a: " . ($receptor ? "{$receptor->nombre} {$receptor->apellido}" : "#{$validated['id_receptor']}"),
+            $emisor,
+            request()->ip(),
+            request()->userAgent()
+        );
+
         return response()->json($mensaje, 201);
     }
 

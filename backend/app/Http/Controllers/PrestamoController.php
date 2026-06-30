@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Prestamo;
+use App\Models\ActivityLog;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class PrestamoController extends Controller
@@ -34,6 +36,16 @@ class PrestamoController extends Controller
             $equipo->save();
         }
 
+        // Log de actividad
+        $estudianteUser = \App\Models\Estudiante::with('usuario')->find($validated['id_estudiante']);
+        ActivityLog::registrar(
+            'PRESTAMO',
+            "Nuevo préstamo solicitado: Equipo #{$validated['id_equipo']} por Estudiante #{$validated['id_estudiante']}",
+            $estudianteUser?->usuario,
+            request()->ip(),
+            request()->userAgent()
+        );
+
         return response()->json($prestamo->load(['estudiante.usuario', 'equipo']), 201);
     }
 
@@ -59,6 +71,15 @@ class PrestamoController extends Controller
                 $equipo->save();
             }
         }
+
+        // Log de cambio de estado
+        ActivityLog::registrar(
+            'PRESTAMO',
+            "Préstamo #{$id} actualizado a estado: {$prestamo->estado}",
+            null,
+            request()->ip(),
+            request()->userAgent()
+        );
 
         return response()->json($prestamo, 200);
     }

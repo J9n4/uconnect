@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Mail\ResetPasswordMail;
+use App\Models\ActivityLog;
 
 use App\Models\Estudiante;
 use App\Models\Profesor;
@@ -77,6 +78,15 @@ class AuthController extends Controller
                 'id_estudiante' => $estudiante?->id_estudiante,
             ];
         }
+
+        // Registrar log de actividad
+        ActivityLog::registrar(
+            'LOGIN',
+            "Inicio de sesión exitoso desde {$request->ip()}",
+            $usuario,
+            $request->ip(),
+            $request->userAgent()
+        );
 
         return response()->json(array_merge($usuario->toArray(), $extra), 200);
     }

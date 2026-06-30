@@ -14,15 +14,27 @@
     <div class="menu-label" *ngIf="!isSidebarCollapsed">MENÚ PRINCIPAL</div>
 
     <nav class="sidebar-nav">
-      <a *ngFor="let item of navItems" 
-         [routerLink]="item.route" 
-         [queryParams]="item.queryParams"
-         routerLinkActive="active" 
-         [routerLinkActiveOptions]="item.queryParams ? {exact: true} : {exact: false}"
-         class="nav-item">
-        <lucide-icon [img]="item.icon"></lucide-icon>
-        <span *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
-      </a>
+      <ng-container *ngFor="let item of navItems">
+        <!-- Link externo (abre en nueva pestaña) -->
+        <a *ngIf="item.externalUrl"
+           [href]="item.externalUrl"
+           target="_blank"
+           rel="noopener"
+           class="nav-item nav-item-external">
+          <lucide-icon [img]="item.icon"></lucide-icon>
+          <span *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
+        </a>
+        <!-- Link interno normal -->
+        <a *ngIf="!item.externalUrl"
+           [routerLink]="item.route" 
+           [queryParams]="item.queryParams"
+           routerLinkActive="active" 
+           [routerLinkActiveOptions]="item.queryParams ? {exact: true} : {exact: false}"
+           class="nav-item">
+          <lucide-icon [img]="item.icon"></lucide-icon>
+          <span *ngIf="!isSidebarCollapsed">{{ item.label }}</span>
+        </a>
+      </ng-container>
     </nav>
 
     <div class="sidebar-footer">

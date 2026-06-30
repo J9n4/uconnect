@@ -109,6 +109,20 @@
         border-left: 3px solid #38bdf8;
       }
     }
+
+    .nav-item-external {
+      border-left-color: rgba(167, 139, 250, 0.3);
+      &:hover {
+        background: rgba(167, 139, 250, 0.08);
+        color: #c4b5fd;
+        border-left-color: #a78bfa;
+      }
+      span::after {
+        content: ' ↗';
+        font-size: 0.7em;
+        opacity: 0.7;
+      }
+    }
   }
 
   .sidebar-footer {

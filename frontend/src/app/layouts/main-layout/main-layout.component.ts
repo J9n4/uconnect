@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { LucideAngularModule, LayoutDashboard, MessageSquare, LogOut, Menu, User, Calendar, Clock, Users, Package, FileText, Bell, Monitor } from 'lucide-angular';
+import { LucideAngularModule, LayoutDashboard, MessageSquare, LogOut, Menu, User, Calendar, Clock, Users, Package, FileText, Bell, Monitor, Activity } from 'lucide-angular';
 import { ToastContainerComponent } from '../../core/components/toast-container/toast-container.component';
 import { AuthService, UserProfile } from '../../core/services/auth.service';
 
@@ -10,6 +10,7 @@ export interface SidebarLink {
   route: string;
   icon: any;
   queryParams?: any;
+  externalUrl?: string;
 }
 
 @Component({
@@ -69,7 +70,8 @@ export class MainLayoutComponent implements OnInit {
     } else if (this.currentUser.role === 'ADMIN') {
       this.navItems = [
         { label: 'Dashboard', route: '/admin/dashboard', icon: LayoutDashboard },
-        { label: 'Mensajes', route: '/messages', icon: MessageSquare }
+        { label: 'Mensajes', route: '/messages', icon: MessageSquare },
+        { label: 'Logs del Sistema', route: '/admin/dashboard', icon: Activity, externalUrl: 'http://localhost:8000/admin/logs' }
       ];
     }
   }
