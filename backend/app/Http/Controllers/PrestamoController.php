@@ -17,15 +17,30 @@ class PrestamoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id_estudiante' => 'required|integer|exists:Estudiante,id_estudiante',
-            'id_equipo' => 'required|integer|exists:Equipo,id_equipo',
-            'fecha_solicitud' => 'required|date',
-            'fecha_prestamo' => 'nullable|date',
-            'fecha_devolucion_es' => 'nullable|date',
-            'fecha_devolucion_real' => 'nullable|date',
-            'estado' => 'required|string|max:50',
-            'observaciones' => 'nullable|string',
+            'id_estudiante' => 'required|integer',
+            'id_equipo'     => 'required|integer|exists:Equipo,id_equipo',
+            'fecha_solicitud'      => 'required|date',
+            'fecha_prestamo'       => 'nullable|date',
+            'fecha_devolucion_es'  => 'nullable|date',
+            'fecha_devolucion_real'=> 'nullable|date',
+            'estado'               => 'required|string|max:50',
+            'observaciones'        => 'nullable|string',
         ]);
+
+        // Resolver el id_estudiante real: puede venir como id_usuario o id_estudiante
+        $estudianteId = $validated['id_estudiante'];
+        $estudiante = \App\Models\Estudiante::with('usuario')->find($estudianteId);
+        if (!$estudiante) {
+            // Intentar buscar por id_usuario
+            $estudiante = \App\Models\Estudiante::with('usuario')->where('id_usuario', $estudianteId)->first();
+            if (!$estudiante) {
+                return response()->json([
+                    'message'  => 'Estudiante no encontrado.',
+                    'errors'   => ['id_estudiante' => ["No existe un estudiante con ese ID."]]
+                ], 422);
+            }
+            $validated['id_estudiante'] = $estudiante->id_estudiante;
+        }
 
         $prestamo = Prestamo::create($validated);
 
@@ -37,11 +52,10 @@ class PrestamoController extends Controller
         }
 
         // Log de actividad
-        $estudianteUser = \App\Models\Estudiante::with('usuario')->find($validated['id_estudiante']);
         ActivityLog::registrar(
             'PRESTAMO',
             "Nuevo préstamo solicitado: Equipo #{$validated['id_equipo']} por Estudiante #{$validated['id_estudiante']}",
-            $estudianteUser?->usuario,
+            $estudiante?->usuario,
             request()->ip(),
             request()->userAgent()
         );

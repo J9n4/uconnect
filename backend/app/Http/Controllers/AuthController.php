@@ -71,7 +71,7 @@ class AuthController extends Controller
                 'cargo' => $admin?->cargo,
             ];
         } elseif (in_array($rolNorm, ['STUDENT', 'ESTUDIANTE', 'USUARIO'])) {
-            $estudiante = Estudiante::where('id_estudiante', $usuario->id_usuario)->first();
+            $estudiante = Estudiante::where('id_usuario', $usuario->id_usuario)->first();
             $extra = [
                 'matricula'     => $estudiante?->matricula,
                 'carrera'       => $estudiante?->carrera,

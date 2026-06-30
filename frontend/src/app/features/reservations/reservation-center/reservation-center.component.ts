@@ -36,8 +36,8 @@ export class ReservationCenterComponent implements OnInit {
   get filteredEquipments() {
     if (!this.searchQuery) return this.labEquipments;
     const query = this.searchQuery.toLowerCase();
-    return this.labEquipments.filter(eq => 
-      eq.name.toLowerCase().includes(query) || 
+    return this.labEquipments.filter(eq =>
+      eq.name.toLowerCase().includes(query) ||
       eq.lab.toLowerCase().includes(query)
     );
   }
@@ -66,7 +66,7 @@ export class ReservationCenterComponent implements OnInit {
             available: eq.estado === 'Disponible' ? 1 : 0,
             total: 1,
             image: eq.nombre.toLowerCase().includes('laptop') || eq.nombre.toLowerCase().includes('notebook') ? '💻' :
-                   (eq.nombre.toLowerCase().includes('arduino') ? '🤖' : '📟')
+              (eq.nombre.toLowerCase().includes('arduino') ? '🤖' : '📟')
           };
         });
       }
@@ -78,8 +78,8 @@ export class ReservationCenterComponent implements OnInit {
         this.teachers = hours.map(h => {
           return {
             id: h.id_horario,
-            name: h.profesor && h.profesor.usuario ? 
-                  `Dr. ${h.profesor.usuario.nombre} ${h.profesor.usuario.apellido}` : 'Docente',
+            name: h.profesor && h.profesor.usuario ?
+              `Dr. ${h.profesor.usuario.nombre} ${h.profesor.usuario.apellido}` : 'Docente',
             subject: h.profesor ? h.profesor.departamento : 'Programación Orientada a Objetos',
             day: h.dia_semana,
             startHour: h.hora_inicio,
@@ -103,7 +103,10 @@ export class ReservationCenterComponent implements OnInit {
       return;
     }
 
-    this.studentDataService.requestEquipment(item.id, user.id).subscribe({
+    // Usar id_estudiante si está disponible, si no fallback al id_usuario
+    const estudianteId = user.id_estudiante ?? user.id;
+
+    this.studentDataService.requestEquipment(item.id, estudianteId).subscribe({
       next: () => {
         item.available = 0;
         this.toastService.show(`¡Solicitud de equipo enviada con éxito para: ${item.name}!`, 'success');
