@@ -27,6 +27,7 @@ export interface EquipmentRequest {
   studentName?: string;
   studentId?: number;
   equipmentId?: number;
+  observaciones?: string;
 }
 
 export interface TutorAppointment {
@@ -81,13 +82,22 @@ export class StudentDataService {
   // Solicitudes de Tutorías
   private tutorAppointmentsSubject = new BehaviorSubject<TutorAppointment[]>([]);
 
+  private normalizeRole(r: string): 'STUDENT' | 'TEACHER' | 'ADMIN' {
+    if (!r) return 'STUDENT';
+    const upper = r.toUpperCase();
+    if (['TEACHER', 'PROFESOR', 'DOCENTE'].includes(upper)) return 'TEACHER';
+    if (['ADMIN', 'ADMINISTRADOR'].includes(upper)) return 'ADMIN';
+    return 'STUDENT';
+  }
+
   private createEmptyChat(u: any): Chat {
+    const norm = this.normalizeRole(u.rol);
     return {
       id: u.id_usuario,
       name: `${u.nombre} ${u.apellido}`,
-      role: u.rol === 'STUDENT' ? 'Estudiante' : (u.rol === 'TEACHER' ? 'Profesor' : 'Admin'),
-      avatar: u.rol === 'ADMIN' ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' : 
-              (u.rol === 'TEACHER' ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150' : 
+      role: norm === 'ADMIN' ? 'Administrador' : (norm === 'TEACHER' ? 'Profesor' : 'Estudiante'),
+      avatar: norm === 'ADMIN' ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' : 
+              (norm === 'TEACHER' ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150' : 
                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'),
       lastMessage: '',
       unread: 0,
@@ -99,18 +109,26 @@ export class StudentDataService {
     const user = this.authService.getCurrentUser();
     if (!user) return;
 
+    let rolesQuery = '';
+    if (user.role === 'STUDENT') {
+      rolesQuery = '?roles=TEACHER,PROFESOR,DOCENTE,ADMIN,ADMINISTRADOR';
+    } else if (user.role === 'TEACHER') {
+      rolesQuery = '?roles=STUDENT,ESTUDIANTE,USUARIO';
+    }
+
     forkJoin({
-      usuarios: this.http.get<any[]>(`${this.baseUrl}/usuarios`),
-      mensajes: this.http.get<any[]>(`${this.baseUrl}/mensajes`)
+      usuarios: this.http.get<any[]>(`${this.baseUrl}/usuarios${rolesQuery}`),
+      mensajes: this.http.get<any[]>(`${this.baseUrl}/mensajes?usuario_id=${user.id}`)
     }).subscribe({
       next: ({ usuarios, mensajes }) => {
         const chatsMap = new Map<number, Chat>();
         
         usuarios.forEach(u => {
           if (u.id_usuario === user.id) return;
-          if (user.role === 'STUDENT' && u.rol !== 'STUDENT') {
+          const uRole = this.normalizeRole(u.rol);
+          if (user.role === 'STUDENT' && uRole !== 'STUDENT') {
             chatsMap.set(u.id_usuario, this.createEmptyChat(u));
-          } else if (user.role === 'TEACHER' && u.rol === 'STUDENT') {
+          } else if (user.role === 'TEACHER' && uRole === 'STUDENT') {
             chatsMap.set(u.id_usuario, this.createEmptyChat(u));
           } else if (user.role === 'ADMIN') {
             chatsMap.set(u.id_usuario, this.createEmptyChat(u));
@@ -185,7 +203,8 @@ export class StudentDataService {
             studentName: p.estudiante && p.estudiante.usuario ? 
                          `${p.estudiante.usuario.nombre} ${p.estudiante.usuario.apellido}` : 'Carlos Martínez',
             studentId: p.id_estudiante,
-            equipmentId: p.id_equipo
+            equipmentId: p.id_equipo,
+            observaciones: p.observaciones
           };
         });
         this.equipmentRequestsSubject.next(mapped);
@@ -293,6 +312,20 @@ export class StudentDataService {
     this.http.delete(`${this.baseUrl}/prestamos/${dbId}`).subscribe(() => {
       this.loadInitialData();
     });
+  }
+
+  deleteEquipmentRequest(id: string): Observable<any> {
+    const dbId = id.replace('REQ-', '');
+    return this.http.delete(`${this.baseUrl}/prestamos/${dbId}`).pipe(
+      tap(() => this.loadInitialData())
+    );
+  }
+
+  updateEquipmentRequest(id: string, data: any): Observable<any> {
+    const dbId = id.replace('REQ-', '');
+    return this.http.put(`${this.baseUrl}/prestamos/${dbId}`, data).pipe(
+      tap(() => this.loadInitialData())
+    );
   }
 
   approveEquipmentRequest(id: string) {

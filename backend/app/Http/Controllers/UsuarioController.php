@@ -10,9 +10,16 @@ use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Usuario::all(), 200);
+        $query = Usuario::query();
+        if ($request->has('roles')) {
+            $roles = array_map('strtoupper', explode(',', $request->query('roles')));
+            $query->whereIn(\Illuminate\Support\Facades\DB::raw('UPPER(rol)'), $roles);
+        } elseif ($request->has('rol')) {
+            $query->where(\Illuminate\Support\Facades\DB::raw('UPPER(rol)'), strtoupper($request->query('rol')));
+        }
+        return response()->json($query->get(), 200);
     }
 
     public function store(Request $request)

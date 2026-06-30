@@ -50,6 +50,16 @@
         <p class="stat-number">{{ stats.inventoryItems }}</p>
       </div>
     </div>
+
+    <div class="stat-card">
+      <div class="stat-icon bg-indigo">
+        <lucide-icon [img]="BriefcaseIcon"></lucide-icon>
+      </div>
+      <div class="stat-info">
+        <h3>Total Profesores</h3>
+        <p class="stat-number">{{ stats.totalProfessors }}</p>
+      </div>
+    </div>
   </div>
 
   <!-- Pestañas de Gestión -->
@@ -65,9 +75,15 @@
         <button [class.active]="activeTab === 'users'" (click)="setTab('users')">
           <lucide-icon [img]="UsersIcon" class="icon-sm"></lucide-icon> Control de Usuarios
         </button>
+        <button [class.active]="activeTab === 'professors'" (click)="setTab('professors')">
+          <lucide-icon [img]="BriefcaseIcon" class="icon-sm"></lucide-icon> Profesores
+        </button>
       </div>
       <button *ngIf="activeTab === 'inventory'" class="btn-primary" (click)="addEquipment()">
         <lucide-icon [img]="PlusIcon" class="icon-sm"></lucide-icon> Agregar Equipo
+      </button>
+      <button *ngIf="activeTab === 'professors'" class="btn-primary" (click)="openProfesorModal()">
+        <lucide-icon [img]="PlusIcon" class="icon-sm"></lucide-icon> Nuevo Profesor
       </button>
     </div>
 
@@ -102,20 +118,27 @@
                 }">{{ loan.status }}</span>
               </td>
               <td>
-                <div class="action-buttons" *ngIf="loan.status === 'Pendiente'">
-                  <button class="btn-success" (click)="approveLoan(loan)" title="Aprobar Solicitud">
-                    <lucide-icon [img]="CheckIcon" class="icon-sm"></lucide-icon> Aprobar
+                <div class="action-buttons">
+                  <ng-container *ngIf="loan.status === 'Pendiente'">
+                    <button class="btn-success" (click)="approveLoan(loan)" title="Aprobar Solicitud">
+                      <lucide-icon [img]="CheckIcon" class="icon-sm"></lucide-icon> Aprobar
+                    </button>
+                    <button class="btn-danger" (click)="rejectLoan(loan)" title="Rechazar Solicitud">
+                      <lucide-icon [img]="XIcon" class="icon-sm"></lucide-icon> Rechazar
+                    </button>
+                  </ng-container>
+                  <ng-container *ngIf="loan.status === 'Aprobado'">
+                    <button class="btn-info" (click)="returnLoan(loan)" title="Marcar como Devuelto">
+                      Marcar Devuelto
+                    </button>
+                  </ng-container>
+                  <button class="btn-outline-primary" (click)="editLoan(loan)" title="Editar">
+                    <lucide-icon [img]="EditIcon" class="icon-sm"></lucide-icon>
                   </button>
-                  <button class="btn-danger" (click)="rejectLoan(loan)" title="Rechazar Solicitud">
-                    <lucide-icon [img]="XIcon" class="icon-sm"></lucide-icon> Rechazar
+                  <button class="btn-outline-danger" (click)="deleteLoan(loan)" title="Eliminar">
+                    <lucide-icon [img]="Trash2Icon" class="icon-sm"></lucide-icon>
                   </button>
                 </div>
-                <div class="action-buttons" *ngIf="loan.status === 'Aprobado'">
-                  <button class="btn-info" (click)="returnLoan(loan)" title="Marcar como Devuelto">
-                    Marcar Devuelto
-                  </button>
-                </div>
-                <span class="no-actions" *ngIf="loan.status === 'Devuelto' || loan.status === 'Rechazado'">-</span>
               </td>
             </tr>
           </tbody>
@@ -197,5 +220,174 @@
       </div>
     </div>
 
+    <!-- Contenido de Profesores -->
+    <div class="tab-content" *ngIf="activeTab === 'professors'">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 40px"></th>
+              <th>ID Prof</th>
+              <th>Nombre Completo</th>
+              <th>Departamento</th>
+              <th>Título</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let prof of professorsList">
+              <tr class="expandable-row">
+                <td class="text-center">
+                  <button class="btn-icon" (click)="toggleProfesorDetail(prof)">
+                    <lucide-icon [img]="prof.expanded ? ChevronDownIcon : ChevronRightIcon" class="icon-sm"></lucide-icon>
+                  </button>
+                </td>
+                <td><strong>{{ prof.dbId }}</strong></td>
+                <td>
+                  <div class="user-info-col">
+                    <span class="fw-bold">{{ prof.name }}</span>
+                    <span class="text-muted text-xs">{{ prof.email }}</span>
+                  </div>
+                </td>
+                <td>{{ prof.department }}</td>
+                <td>{{ prof.title || '-' }}</td>
+                <td>
+                  <span class="badge badge-approved">{{ prof.status }}</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-outline-primary" (click)="openProfesorModal(prof)" title="Editar">
+                      <lucide-icon [img]="EditIcon" class="icon-sm"></lucide-icon>
+                    </button>
+                    <button class="btn-outline-danger" (click)="deleteProfesor(prof)" title="Eliminar">
+                      <lucide-icon [img]="Trash2Icon" class="icon-sm"></lucide-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Detalle Expandido -->
+              <tr *ngIf="prof.expanded" class="detail-row">
+                <td colspan="7">
+                  <div class="detail-container">
+                    <div *ngIf="prof.loadingDetails" class="loading-state">
+                      Cargando detalles...
+                    </div>
+                    <div *ngIf="!prof.loadingDetails" class="detail-grid">
+                      <!-- Horarios -->
+                      <div class="detail-card">
+                        <h4>Horarios de Atención</h4>
+                        <div class="empty-state" *ngIf="!prof.horarios?.length">No tiene horarios registrados</div>
+                        <ul class="detail-list" *ngIf="prof.horarios?.length">
+                          <li *ngFor="let h of prof.horarios">
+                            <lucide-icon [img]="ClockIcon" class="icon-xs"></lucide-icon>
+                            <span>{{ h.dia_semana | date:'EEEE' }} {{ h.hora_inicio }} - {{ h.hora_fin }}</span>
+                            <span class="badge badge-info">{{ h.modalidad }}</span>
+                            <span class="text-xs text-muted">{{ h.ubicacion }}</span>
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <!-- Equipos y Préstamos -->
+                      <div class="detail-card">
+                        <h4>Equipos en Préstamo</h4>
+                        <div class="empty-state" *ngIf="!prof.equipos?.length">No tiene equipos en préstamo</div>
+                        <ul class="detail-list" *ngIf="prof.equipos?.length">
+                          <li *ngFor="let eq of prof.equipos">
+                            <lucide-icon [img]="MonitorIcon" class="icon-xs"></lucide-icon>
+                            <span>{{ eq.name }}</span>
+                            <span class="badge badge-pending">{{ eq.status }}</span>
+                            <span class="text-xs text-muted">{{ eq.date }}</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Crear/Editar Profesor -->
+<div class="modal-overlay" *ngIf="showProfesorModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ editingProfesor ? 'Editar Profesor' : 'Nuevo Profesor' }}</h2>
+      <button class="btn-close" (click)="closeProfesorModal()">
+        <lucide-icon [img]="XIcon"></lucide-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body form-grid">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="currentProfesor.nombre" class="form-control" placeholder="Ej. Juan" />
+      </div>
+      <div class="form-group">
+        <label>Apellido</label>
+        <input type="text" [(ngModel)]="currentProfesor.apellido" class="form-control" placeholder="Ej. Pérez" />
+      </div>
+      <div class="form-group">
+        <label>Correo Electrónico</label>
+        <input type="email" [(ngModel)]="currentProfesor.correo" class="form-control" placeholder="juan@uconnect.edu" />
+      </div>
+      <div class="form-group">
+        <label>Contraseña {{ editingProfesor ? '(Opcional)' : '' }}</label>
+        <input type="password" [(ngModel)]="currentProfesor.contrasena" class="form-control" placeholder="******" />
+      </div>
+      <div class="form-group">
+        <label>Departamento</label>
+        <input type="text" [(ngModel)]="currentProfesor.departamento" class="form-control" placeholder="Ej. Ingeniería" />
+      </div>
+      <div class="form-group">
+        <label>Título / Especialidad</label>
+        <input type="text" [(ngModel)]="currentProfesor.titulo" class="form-control" placeholder="Ej. Ph.D. en Sistemas" />
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeProfesorModal()">Cancelar</button>
+      <button class="btn-primary" (click)="saveProfesor()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Préstamo -->
+<div class="modal-overlay" *ngIf="showLoanModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Editar Préstamo</h2>
+      <button class="btn-close" (click)="closeLoanModal()">
+        <lucide-icon [img]="XIcon"></lucide-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body form-grid">
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Estado del Préstamo</label>
+        <select [(ngModel)]="currentLoan.status" class="form-control">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Aprobado">Aprobado</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Devuelto">Devuelto</option>
+          <option value="Rechazado">Rechazado</option>
+        </select>
+      </div>
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="currentLoan.observaciones" class="form-control" rows="3" placeholder="Añadir observaciones sobre el préstamo..."></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeLoanModal()">Cancelar</button>
+      <button class="btn-primary" (click)="saveLoan()">Guardar Cambios</button>
+    </div>
   </div>
 </div>

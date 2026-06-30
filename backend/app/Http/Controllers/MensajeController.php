@@ -7,9 +7,14 @@ use Illuminate\Http\Request;
 
 class MensajeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Mensaje::all(), 200);
+        $query = Mensaje::query();
+        if ($request->has('usuario_id')) {
+            $userId = $request->query('usuario_id');
+            $query->where('id_emisor', $userId)->orWhere('id_receptor', $userId);
+        }
+        return response()->json($query->get(), 200);
     }
 
     public function store(Request $request)

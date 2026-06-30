@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Monitor, Clock, FileText, Check, X, Calendar, Edit } from 'lucide-angular';
+import { LucideAngularModule, Monitor, Clock, FileText, Check, X, Calendar, Edit, Trash2 } from 'lucide-angular';
 import { ToastService } from '../../../core/services/toast.service';
 import { StudentDataService, EquipmentRequest, TutorAppointment } from '../../../core/services/student-data.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -25,6 +25,7 @@ export class TeacherLoansComponent implements OnInit {
   readonly XIcon = X;
   readonly CalendarIcon = Calendar;
   readonly EditIcon = Edit;
+  readonly Trash2Icon = Trash2;
 
   activeTab: 'loans' | 'tutorings' = 'loans';
 
@@ -83,6 +84,49 @@ export class TeacherLoansComponent implements OnInit {
   returnLoan(loan: EquipmentRequest) {
     this.studentDataService.returnEquipmentRequest(loan.id);
     this.toastService.show(`Equipo del préstamo ${loan.id} devuelto y verificado.`, 'info');
+  }
+
+  showLoanModal = false;
+  currentLoan: Partial<EquipmentRequest> = {};
+
+  editLoan(loan: EquipmentRequest) {
+    this.currentLoan = { ...loan };
+    this.showLoanModal = true;
+  }
+
+  closeLoanModal() {
+    this.showLoanModal = false;
+    this.currentLoan = {};
+  }
+
+  saveLoan() {
+    if (this.currentLoan.id) {
+      this.studentDataService.updateEquipmentRequest(this.currentLoan.id, {
+        estado: this.currentLoan.status,
+        observaciones: this.currentLoan.observaciones
+      }).subscribe({
+        next: () => {
+          this.toastService.show('Préstamo actualizado exitosamente', 'success');
+          this.closeLoanModal();
+        },
+        error: () => {
+          this.toastService.show('Error al actualizar el préstamo', 'error');
+        }
+      });
+    }
+  }
+
+  deleteLoan(loan: EquipmentRequest) {
+    if (confirm(`¿Estás seguro de que deseas eliminar el préstamo ${loan.id}?`)) {
+      this.studentDataService.deleteEquipmentRequest(loan.id).subscribe({
+        next: () => {
+          this.toastService.show('Préstamo eliminado exitosamente', 'success');
+        },
+        error: () => {
+          this.toastService.show('Error al eliminar el préstamo', 'error');
+        }
+      });
+    }
   }
 
   // --- ACCIONES DE TUTORÍAS ---

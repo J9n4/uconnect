@@ -9,7 +9,7 @@ class ProfesorController extends Controller
 {
     public function index()
     {
-        return response()->json(Profesor::all(), 200);
+        return response()->json(Profesor::with('usuario')->get(), 200);
     }
 
     public function store(Request $request)

@@ -10,9 +10,13 @@ use Carbon\Carbon;
 
 class HorarioAtencionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(HorarioAtencion::with(['profesor.usuario', 'estudiante.usuario'])->get(), 200);
+        $query = HorarioAtencion::with(['profesor.usuario', 'estudiante.usuario']);
+        if ($request->has('id_profesor')) {
+            $query->where('id_profesor', $request->query('id_profesor'));
+        }
+        return response()->json($query->get(), 200);
     }
 
     public function store(Request $request)

@@ -56,22 +56,29 @@
               }">{{ loan.status }}</span>
             </td>
             <td>
-              <div class="action-buttons" *ngIf="loan.status === 'Pendiente'">
-                <button class="btn-success" (click)="approveLoan(loan)">
-                  <lucide-icon [img]="CheckIcon" class="icon-sm"></lucide-icon> Aprobar
+              <div class="action-buttons">
+                <ng-container *ngIf="loan.status === 'Pendiente'">
+                  <button class="btn-success" (click)="approveLoan(loan)">
+                    <lucide-icon [img]="CheckIcon" class="icon-sm"></lucide-icon> Aprobar
+                  </button>
+                </ng-container>
+                <ng-container *ngIf="loan.status === 'Aprobado'">
+                  <button class="btn-primary" (click)="deliverLoan(loan)">
+                    Entregar Equipo
+                  </button>
+                </ng-container>
+                <ng-container *ngIf="loan.status === 'Entregado'">
+                  <button class="btn-info" (click)="returnLoan(loan)">
+                    Confirmar Devolución
+                  </button>
+                </ng-container>
+                <button class="btn-outline-primary" (click)="editLoan(loan)" title="Editar">
+                  <lucide-icon [img]="EditIcon" class="icon-sm"></lucide-icon>
+                </button>
+                <button class="btn-outline-danger" (click)="deleteLoan(loan)" title="Eliminar">
+                  <lucide-icon [img]="Trash2Icon" class="icon-sm"></lucide-icon>
                 </button>
               </div>
-              <div class="action-buttons" *ngIf="loan.status === 'Aprobado'">
-                <button class="btn-primary" (click)="deliverLoan(loan)">
-                  Entregar Equipo
-                </button>
-              </div>
-              <div class="action-buttons" *ngIf="loan.status === 'Entregado'">
-                <button class="btn-info" (click)="returnLoan(loan)">
-                  Confirmar Devolución
-                </button>
-              </div>
-              <span class="no-actions" *ngIf="loan.status === 'Devuelto' || loan.status === 'Cancelado'">-</span>
             </td>
           </tr>
         </tbody>
@@ -195,4 +202,38 @@
     </div>
   </div>
 
+</div>
+
+<!-- Modal Editar Préstamo -->
+<div class="modal-overlay" *ngIf="showLoanModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Editar Préstamo</h2>
+      <button class="btn-close" (click)="closeLoanModal()">
+        <lucide-icon [img]="XIcon"></lucide-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body form-grid">
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Estado del Préstamo</label>
+        <select [(ngModel)]="currentLoan.status" class="form-control">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Aprobado">Aprobado</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Devuelto">Devuelto</option>
+          <option value="Rechazado">Rechazado</option>
+        </select>
+      </div>
+      <div class="form-group" style="grid-column: span 2;">
+        <label>Observaciones</label>
+        <textarea [(ngModel)]="currentLoan.observaciones" class="form-control" rows="3" placeholder="Añadir observaciones sobre el préstamo..."></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeLoanModal()">Cancelar</button>
+      <button class="btn-primary" (click)="saveLoan()">Guardar Cambios</button>
+    </div>
+  </div>
 </div>
