@@ -45,7 +45,9 @@ class ActivityLogController extends Controller
                             ->distinct()
                             ->count();
 
-        return view('admin.logs', compact('logs', 'totalLogs', 'logsHoy', 'acciones', 'usuariosActivos'));
+        return response()
+            ->view('admin.logs', compact('logs', 'totalLogs', 'logsHoy', 'acciones', 'usuariosActivos'))
+            ->header('Content-Security-Policy', "frame-ancestors *");
     }
 
     /**

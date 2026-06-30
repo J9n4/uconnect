@@ -15,11 +15,9 @@
 
     <nav class="sidebar-nav">
       <ng-container *ngFor="let item of navItems">
-        <!-- Link externo (abre en nueva pestaña) -->
+        <!-- Navega a URL externa en la misma pestaña -->
         <a *ngIf="item.externalUrl"
            [href]="item.externalUrl"
-           target="_blank"
-           rel="noopener"
            class="nav-item nav-item-external">
           <lucide-icon [img]="item.icon"></lucide-icon>
           <span *ngIf="!isSidebarCollapsed">{{ item.label }}</span>

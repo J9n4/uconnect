@@ -71,7 +71,7 @@ export class MainLayoutComponent implements OnInit {
       this.navItems = [
         { label: 'Dashboard', route: '/admin/dashboard', icon: LayoutDashboard },
         { label: 'Mensajes', route: '/messages', icon: MessageSquare },
-        { label: 'Logs del Sistema', route: '/admin/dashboard', icon: Activity, externalUrl: 'http://localhost:8000/admin/logs' }
+        { label: 'Logs del Sistema', route: '/admin/logs', icon: Activity }
       ];
     }
   }
@@ -81,6 +81,7 @@ export class MainLayoutComponent implements OnInit {
     if (url.includes('student/dashboard') || url.includes('teacher/dashboard') || url.includes('admin/dashboard')) {
       return 'Dashboard';
     }
+    if (url.includes('admin/logs')) return 'Logs del Sistema';
     if (url.includes('messages')) return 'Mensajes';
     if (url.includes('reservations')) return 'Reservas';
     if (url.includes('my-requests')) return 'Mis Solicitudes';

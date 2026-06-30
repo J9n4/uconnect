@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Remover el encabezado X-Frame-Options para permitir que el iframe funcione
+        $middleware->remove(\Illuminate\Http\Middleware\FrameGuard::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -7,6 +7,7 @@ import { ReservationCenterComponent } from './features/reservations/reservation-
 import { MyScheduleComponent } from './features/schedule/my-schedule/my-schedule.component';
 import { MyRequestsComponent } from './features/reservations/my-requests/my-requests.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
+import { AdminLogsComponent } from './features/admin/admin-logs/admin-logs.component';
 import { TeacherLoansComponent } from './features/teacher/teacher-loans/teacher-loans.component';
 import { ProfileComponent } from './features/profile/profile.component';
 export const routes: Routes = [
@@ -22,6 +23,7 @@ export const routes: Routes = [
       { path: 'student/dashboard', component: StudentDashboardComponent },
       { path: 'teacher/dashboard', component: TeacherDashboardComponent },
       { path: 'admin/dashboard', component: AdminDashboardComponent },
+      { path: 'admin/logs', component: AdminLogsComponent },
       { path: 'teacher/loans', component: TeacherLoansComponent },
       { path: 'messages', component: MessageCenterComponent },
       { path: 'reservations', component: ReservationCenterComponent },
