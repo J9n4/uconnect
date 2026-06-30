@@ -25,6 +25,11 @@ class AuthController extends Controller
 
         $usuario = Usuario::where('correo', $request->correo)->first();
 
+        // Verificar primero que el usuario existe
+        if (!$usuario) {
+            return response()->json(['message' => 'Credenciales inválidas.'], 401);
+        }
+
         // Soportar contraseñas en texto plano (legacy) y bcrypt
         $passwordOk = false;
         if (strlen($usuario->contrasena) === 60 && str_starts_with($usuario->contrasena, '$2')) {
@@ -35,30 +40,41 @@ class AuthController extends Controller
             $passwordOk = ($request->contrasena === $usuario->contrasena);
         }
 
-        if (!$usuario || !$passwordOk) {
+        if (!$passwordOk) {
             return response()->json(['message' => 'Credenciales inválidas.'], 401);
         }
 
-        // Construir datos extendidos según el rol
+        // Normalizar roles de la BD real (PROFESOR, ESTUDIANTE, ADMIN, TEACHER, STUDENT)
+        $rolNorm = strtoupper($usuario->rol);
         $extra = [];
-        if ($usuario->rol === 'STUDENT') {
-            $estudiante = Estudiante::where('id_usuario', $usuario->id_usuario)->first();
-            $extra = [
-                'matricula' => $estudiante?->matricula,
-                'carrera'   => $estudiante?->carrera,
-                'id_estudiante' => $estudiante?->id_estudiante,
-            ];
-        } elseif ($usuario->rol === 'TEACHER') {
+        if (in_array($rolNorm, ['TEACHER', 'PROFESOR', 'DOCENTE'])) {
+            // Buscar por id_usuario (FK real en la tabla Profesor)
             $profesor = Profesor::where('id_usuario', $usuario->id_usuario)->first();
+            // Si no existe fila en Profesor, crearla automáticamente
+            if (!$profesor) {
+                $profesor = Profesor::create([
+                    'id_usuario'   => $usuario->id_usuario,
+                    'departamento' => 'Sin departamento',
+                    'titulo'       => null,
+                    'estado'       => 'Activo',
+                ]);
+            }
             $extra = [
-                'departamento' => $profesor?->departamento,
-                'titulo'       => $profesor?->titulo,
-                'id_profesor'  => $profesor?->id_profesor,
+                'departamento' => $profesor->departamento,
+                'titulo'       => $profesor->titulo,
+                'id_profesor'  => $profesor->id_profesor,
             ];
-        } elseif ($usuario->rol === 'ADMIN') {
+        } elseif (in_array($rolNorm, ['ADMIN', 'ADMINISTRADOR'])) {
             $admin = Administrador::where('id_usuario', $usuario->id_usuario)->first();
             $extra = [
                 'cargo' => $admin?->cargo,
+            ];
+        } elseif (in_array($rolNorm, ['STUDENT', 'ESTUDIANTE', 'USUARIO'])) {
+            $estudiante = Estudiante::where('id_estudiante', $usuario->id_usuario)->first();
+            $extra = [
+                'matricula'     => $estudiante?->matricula,
+                'carrera'       => $estudiante?->carrera,
+                'id_estudiante' => $estudiante?->id_estudiante,
             ];
         }
 

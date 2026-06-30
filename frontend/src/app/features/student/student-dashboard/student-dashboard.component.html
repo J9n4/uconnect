@@ -79,6 +79,9 @@
             <span class="message-date">{{ msg.date }}</span>
           </div>
         </div>
+        <div class="empty-state" *ngIf="recentMessages.length === 0">
+          <p>No tienes mensajes recientes.</p>
+        </div>
       </div>
     </section>
 
@@ -118,6 +121,9 @@
               <h4>{{ note.title }}</h4>
               <p>{{ note.text }}</p>
             </div>
+          </div>
+          <div class="empty-state" *ngIf="notifications.length === 0">
+            <p>No hay notificaciones nuevas.</p>
           </div>
         </div>
       </section>

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Usuario;
+use App\Models\Profesor;
+use App\Models\Estudiante;
+use App\Models\Administrador;
 use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
@@ -22,11 +25,47 @@ class UsuarioController extends Controller
             'rol' => 'required|string|max:50',
             'estado' => 'required|string|max:50',
             'fecha_registro' => 'nullable|date',
+            // Campos opcionales para el perfil de rol
+            'departamento' => 'nullable|string|max:255',
+            'titulo' => 'nullable|string|max:255',
+            'cargo' => 'nullable|string|max:255',
+            'matricula' => 'nullable|string|max:255',
+            'carrera' => 'nullable|string|max:255',
         ]);
 
         $validated['contrasena'] = password_hash($validated['contrasena'], PASSWORD_BCRYPT);
 
-        $usuario = Usuario::create($validated);
+        // Extraer campos específicos de rol antes de crear el usuario
+        $rolCampos = ['departamento', 'titulo', 'cargo', 'matricula', 'carrera'];
+        $rolData = array_intersect_key($validated, array_flip($rolCampos));
+        $usuarioData = array_diff_key($validated, array_flip($rolCampos));
+
+        $usuario = Usuario::create($usuarioData);
+
+        // Crear el registro en la tabla del rol correspondiente
+        $rolNorm = strtoupper($usuario->rol);
+        if ($rolNorm === 'TEACHER') {
+            Profesor::create([
+                'id_profesor' => $usuario->id_usuario,
+                'departamento' => $rolData['departamento'] ?? 'Sin departamento',
+                'titulo' => $rolData['titulo'] ?? null,
+                'estado' => $usuario->estado ?? 'Activo',
+            ]);
+        } elseif ($rolNorm === 'STUDENT') {
+            Estudiante::create([
+                'id_estudiante' => $usuario->id_usuario,
+                'matricula' => $rolData['matricula'] ?? null,
+                'carrera' => $rolData['carrera'] ?? null,
+                'estado' => $usuario->estado ?? 'Activo',
+            ]);
+        } elseif ($rolNorm === 'ADMIN') {
+            Administrador::create([
+                'id_administrador' => $usuario->id_usuario,
+                'cargo' => $rolData['cargo'] ?? 'Sin cargo',
+                'estado' => $usuario->estado ?? 'Activo',
+            ]);
+        }
+
         return response()->json($usuario, 201);
     }
 

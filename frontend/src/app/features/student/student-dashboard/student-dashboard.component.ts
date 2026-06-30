@@ -45,59 +45,63 @@ export class StudentDashboardComponent implements OnInit {
   readonly CheckIcon = Check;
   readonly InfoIcon = Info;
 
-  studentFirstName = 'Carlos';
+  studentFirstName = '';
   
   stats = {
-    newMessages: 2,
+    newMessages: 0,
     activeLoans: 0,
-    availableEquipment: 5,
-    notifications: 2
+    availableEquipment: 0,
+    notifications: 0
   };
 
-  recentMessages: RecentMessage[] = [
-    {
-      senderName: 'Dr. Miguel Ángel Torres',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100',
-      text: 'Hola Carlos, he revisado tu proyecto y está excelente. Solo necesitas ajustar la sección de pruebas unitarias.',
-      date: '28 may, 09:30',
-      isUnread: true
-    },
-    {
-      senderName: 'Dra. Elena Vargas',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
-      text: 'Recuerda que la tarea de ecuaciones diferenciales se entrega este viernes.',
-      date: '27 may, 16:45',
-      isUnread: false
-    },
-    {
-      senderName: 'Dra. Ana María López',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100',
-      text: 'Tu consulta sobre normalización está resuelta. Revisa el documento que te envié.',
-      date: '26 may, 11:20',
-      isUnread: false
-    }
-  ];
-
+  recentMessages: RecentMessage[] = [];
   activeLoans: ActiveLoan[] = [];
-
-  notifications: StudentNotification[] = [
-    {
-      type: 'success',
-      title: 'Préstamo aprobado',
-      text: 'Tu solicitud de equipo ha sido registrada exitosamente.'
-    },
-    {
-      type: 'info',
-      title: 'Nuevo mensaje',
-      text: 'Dr. Torres te ha enviado un mensaje.'
-    }
-  ];
+  notifications: StudentNotification[] = [];
 
   ngOnInit() {
     const currentUser = this.authService.getCurrentUser();
     if (currentUser) {
       this.studentFirstName = currentUser.name.split(' ')[0];
     }
+
+    // Cargar mensajes recientes desde la API (datos reales)
+    this.studentDataService.chats$.subscribe(chats => {
+      const mensajesRecientes: RecentMessage[] = [];
+      let totalNoLeidos = 0;
+
+      chats.forEach(chat => {
+        const mensajesDelChat = chat.messages.filter(m => m.sender === 'them');
+        if (mensajesDelChat.length > 0) {
+          const ultimo = mensajesDelChat[mensajesDelChat.length - 1];
+          const esNoLeido = chat.unread > 0;
+          totalNoLeidos += chat.unread;
+          mensajesRecientes.push({
+            senderName: chat.name,
+            avatar: chat.avatar,
+            text: ultimo.text,
+            date: ultimo.time,
+            isUnread: esNoLeido
+          });
+        }
+      });
+
+      // Ordenar: primero los no leídos, luego el resto
+      mensajesRecientes.sort((a, b) => (b.isUnread ? 1 : 0) - (a.isUnread ? 1 : 0));
+
+      this.recentMessages = mensajesRecientes.slice(0, 5);
+      this.stats.newMessages = totalNoLeidos;
+    });
+
+    // Cargar notificaciones reales desde /api/notificaciones
+    this.studentDataService.getNotifications().subscribe(notifs => {
+      this.notifications = notifs.map(n => ({
+        type: n.tipo === 'exito' ? 'success' : (n.tipo === 'advertencia' ? 'warning' : 'info') as 'success' | 'warning' | 'info',
+        title: n.titulo,
+        text: n.mensaje
+      }));
+      // Contar solo las no leídas como "nuevas hoy"
+      this.stats.notifications = notifs.filter((n: any) => n.leida === 'No').length;
+    });
 
     // Cargar préstamos activos del alumno desde la base de datos
     this.studentDataService.equipmentRequests$.subscribe(reqs => {
@@ -115,7 +119,7 @@ export class StudentDashboardComponent implements OnInit {
 
     // Cargar estadísticas de equipos
     this.studentDataService.getEquipments().subscribe(eqs => {
-      this.stats.availableEquipment = eqs.filter(e => e.estado === 'Disponible').length;
+      this.stats.availableEquipment = eqs.filter((e: any) => e.estado === 'Disponible').length;
     });
   }
 

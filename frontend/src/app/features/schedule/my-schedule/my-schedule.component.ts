@@ -85,26 +85,43 @@ export class MyScheduleComponent implements OnInit {
 
   loadTeacherSlots() {
     const user = this.authService.getCurrentUser();
-    const idProfesor = user?.id_profesor ?? user?.id;
+    const idProfesor = user?.id_profesor || user?.id;
+    const idUsuario = user?.id;
 
     // Clases fijas del profesor
-    const teacherClasses: ClassSchedule[] = [
-      { id: 't-cls-1', name: 'Clase de Programación', day: 'Miércoles', startHour: 14, duration: 2, room: 'Sala de Programación', type: 'theory' }
-    ];
+    const teacherClasses: ClassSchedule[] = [];
+
+    // Nombres de días para convertir timestamp a nombre de día
+    const diasNombres = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
     // Cargar horarios de atención desde la BD
     this.studentDataService.getAttentionHours().subscribe(horarios => {
-      const propios = horarios.filter((h: any) => h.id_profesor === idProfesor);
-      const officeHours: ClassSchedule[] = propios.map((h: any) => ({
-        id: h.id_horario,
-        name: 'Atención de estudiantes',
-        day: h.dia_semana,
-        startHour: parseInt(h.hora_inicio?.split(':')[0] || '8'),
-        duration: parseInt(h.hora_fin?.split(':')[0] || '9') - parseInt(h.hora_inicio?.split(':')[0] || '8'),
-        room: h.ubicacion || 'Sala de Tutorías',
-        type: 'appointment' as const,
-        modality: h.modalidad
-      }));
+      // Filtrar por id_profesor (PK de la tabla Profesor) o por id_usuario via el objeto profesor
+      const propios = horarios.filter((h: any) => {
+        const matchIdProfesor = h.id_profesor === idProfesor;
+        const matchIdUsuario = h.profesor?.id_usuario === idUsuario || h.profesor?.usuario?.id_usuario === idUsuario;
+        return matchIdProfesor || matchIdUsuario;
+      });
+
+      const officeHours: ClassSchedule[] = propios.map((h: any) => {
+        // dia_semana puede ser un timestamp o un string con nombre de día
+        let diaNombre = h.dia_semana;
+        if (h.dia_semana && h.dia_semana.includes('-')) {
+          // Es un timestamp: convertir a nombre de día
+          const fecha = new Date(h.dia_semana);
+          diaNombre = diasNombres[fecha.getDay()] || 'Lunes';
+        }
+        return {
+          id: h.id_horario,
+          name: 'Atención de estudiantes',
+          day: diaNombre,
+          startHour: parseInt(h.hora_inicio?.split(':')[0] || '8'),
+          duration: parseInt(h.hora_fin?.split(':')[0] || '9') - parseInt(h.hora_inicio?.split(':')[0] || '8'),
+          room: h.ubicacion || 'Sala de Tutorías',
+          type: 'appointment' as const,
+          modality: h.modalidad
+        };
+      });
       this.scheduleItems = [...teacherClasses, ...officeHours];
     });
   }
@@ -112,7 +129,9 @@ export class MyScheduleComponent implements OnInit {
   addOfficeHour() {
     if (!this.isTeacher) return;
     const user = this.authService.getCurrentUser();
-    const idProfesor = user?.id_profesor ?? user?.id;
+    // Enviamos user.id (id_usuario) al backend; el backend resuelve el id_profesor real
+    // Si el login devolvió id_profesor (correcto), úsalo; si no, usa user.id como id_usuario
+    const idProfesor = user?.id_profesor || user?.id;
     if (!idProfesor) {
       this.toastService.show('No se encontró el ID del profesor.', 'error');
       return;
@@ -137,13 +156,22 @@ export class MyScheduleComponent implements OnInit {
       estado: 'Disponible'
     };
 
+    console.log('=== DEBUG addOfficeHour ===');
+    console.log('user completo:', user);
+    console.log('user.id_profesor:', user?.id_profesor, '| user.id:', user?.id);
+    console.log('idProfesor resuelto:', idProfesor);
+    console.log('payload a enviar:', payload);
+
     this.http.post(`${this.apiUrl}/horarios-atencion`, payload).subscribe({
       next: () => {
         this.toastService.show('¡Horario de atención añadido con éxito!', 'success');
         this.loadTeacherSlots();
         this.newSlot = { day: 'Lunes', startHour: 9, duration: 1, modality: 'Presencial', room: 'Sala de Tutorías' };
       },
-      error: () => this.toastService.show('Error al guardar el horario en la BD.', 'error')
+      error: (err) => {
+        console.error('Error al guardar horario:', err?.error);
+        this.toastService.show('Error al guardar el horario en la BD.', 'error');
+      }
     });
   }
 

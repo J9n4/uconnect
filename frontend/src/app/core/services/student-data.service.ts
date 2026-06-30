@@ -140,6 +140,10 @@ export class StudentDataService {
               time: new Date(m.fecha_envio).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
             });
             chat.lastMessage = m.contenido;
+            // Contar mensajes no leídos recibidos por el usuario actual
+            if (!isSender && !m.leido) {
+              chat.unread += 1;
+            }
           }
         });
 
@@ -261,6 +265,14 @@ export class StudentDataService {
   // --- GESTIÓN DE EQUIPOS (CONSUMIENDO API) ---
   getEquipments(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/equipos`);
+  }
+
+  // --- NOTIFICACIONES (CONSUMIENDO API) ---
+  getNotifications(): Observable<any[]> {
+    const user = this.authService.getCurrentUser();
+    return this.http.get<any[]>(`${this.baseUrl}/notificaciones`).pipe(
+      map(notifs => user ? notifs.filter(n => n.id_usuario === user.id) : notifs)
+    );
   }
 
   requestEquipment(equipmentId: number, studentId: number): Observable<any> {
